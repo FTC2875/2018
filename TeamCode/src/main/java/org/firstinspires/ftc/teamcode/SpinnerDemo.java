@@ -58,8 +58,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class SpinnerDemo extends LinearOpMode {
 
     /* Declare OpMode members. */
-    DcMotor rightMotor;
-    DcMotor leftMotor;
+    private DcMotor rightMotor;
+    private DcMotor leftMotor;
+    private DcMotor spinner;
+    private DcMotor basket;
 
     @Override
     public void runOpMode() {
@@ -70,25 +72,38 @@ public class SpinnerDemo extends LinearOpMode {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
-         leftMotor  = hardwareMap.dcMotor.get("left");
-         rightMotor = hardwareMap.dcMotor.get("right");
+        leftMotor  = hardwareMap.dcMotor.get("left");
+        rightMotor = hardwareMap.dcMotor.get("right");
+        spinner = hardwareMap.dcMotor.get("spinner");
+        basket = hardwareMap.dcMotor.get("basket");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
-        // leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
+            leftMotor.setPower(-gamepad1.left_stick_y);
+            rightMotor.setPower(-gamepad1.right_stick_y);
+
+            if (gamepad1.right_bumper) {
+                spinner.setPower(1.0);
+            } else if (gamepad1.left_bumper) {
+                spinner.setPower(-1.0);
+            }
+
+            if (gamepad1.dpad_left) {
+                basket.setPower(1.0);
+            } else if (gamepad1.dpad_right) {
+                basket.setPower(-1.0);
+            }
 
             telemetry.update();
-
-            // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-            // leftMotor.setPower(-gamepad1.left_stick_y);
-            // rightMotor.setPower(-gamepad1.right_stick_y);
         }
     }
 }
