@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -31,6 +32,8 @@ public class OmniDemo extends LinearOpMode {
     private DcMotor rightbackMotor;
     private DcMotor leftbackMotor;
     private DcMotor raiser;
+    private Servo leftClamp;
+    private Servo rightClamp;
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -45,6 +48,8 @@ public class OmniDemo extends LinearOpMode {
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
         raiser = hardwareMap.dcMotor.get("raiser");
+        leftClamp = hardwareMap.servo.get("leftClamp");
+        rightClamp = hardwareMap.servo.get("rightClamp");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -53,6 +58,8 @@ public class OmniDemo extends LinearOpMode {
         leftbackMotor.setDirection(DcMotor.Direction.FORWARD);
         rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
         raiser.setDirection(DcMotor.Direction.FORWARD);
+        leftClamp.setDirection(Servo.Direction.FORWARD);
+        rightClamp.setDirection((Servo.Direction.REVERSE));
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -65,8 +72,16 @@ public class OmniDemo extends LinearOpMode {
             leftbackMotor.setPower(-gamepad1.right_stick_x);
             rightfrontMotor.setPower(-gamepad1.right_stick_x);
             raiser.setPower(-gamepad1.left_stick_y);
+            if(gamepad1.dpad_left){
+                leftClamp.setPosition(leftClamp.getPosition()+.1);
+                rightClamp.setPosition(rightClamp.getPosition()-.1);
+            } else if(gamepad1.dpad_right){
+                leftClamp.setPosition(leftClamp.getPosition()-.1);
+                rightClamp.setPosition(rightClamp.getPosition()+.1);
+            }
 
             telemetry.update();
+
         }
     }
 }
