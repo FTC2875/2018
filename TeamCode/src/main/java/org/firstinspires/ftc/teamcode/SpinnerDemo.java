@@ -96,6 +96,8 @@ public class SpinnerDemo extends LinearOpMode {
                 spinner.setPower(1.0);
             } else if (gamepad1.left_bumper) {
                 spinner.setPower(-1.0);
+            } else{
+                spinner.setPower(0);
             }
 
             if (gamepad1.dpad_left) {
