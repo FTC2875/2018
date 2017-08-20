@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="RevTest", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="OmniBotDemo", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class OmniDemo extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -59,7 +59,7 @@ public class OmniDemo extends LinearOpMode {
         rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
         raiser.setDirection(DcMotor.Direction.FORWARD);
         leftClamp.setDirection(Servo.Direction.FORWARD);
-        rightClamp.setDirection((Servo.Direction.REVERSE));
+        rightClamp.setDirection((Servo.Direction.FORWARD));
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -78,7 +78,7 @@ public class OmniDemo extends LinearOpMode {
             } else if(gamepad1.dpad_right){
                 leftClamp.setPosition(leftClamp.getPosition()-.1);
                 rightClamp.setPosition(rightClamp.getPosition()+.1);
-            }
+            }v
             telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
             telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
 
