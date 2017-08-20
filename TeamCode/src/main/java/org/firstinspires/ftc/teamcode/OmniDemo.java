@@ -35,6 +35,8 @@ public class OmniDemo extends LinearOpMode {
     private DcMotor raiser;
     private CRServo leftClamp;
     private CRServo rightClamp;
+
+    private double slowFactor = 1;
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -67,11 +69,17 @@ public class OmniDemo extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-            leftfrontMotor.setPower(-gamepad1.right_stick_y);
-            rightbackMotor.setPower(-gamepad1.right_stick_y);
+            leftfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+            rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
 
-            leftbackMotor.setPower(-gamepad1.left_stick_x);
-            rightfrontMotor.setPower(-gamepad1.left_stick_x);
+            leftbackMotor.setPower(-gamepad1.left_stick_x * slowFactor);
+            rightfrontMotor.setPower(-gamepad1.left_stick_x * slowFactor);
+
+            if (gamepad1.left_bumper) {
+                slowFactor = 0.35;
+            } else {
+                slowFactor = 1;
+            }
 
             if(gamepad1.dpad_left){
                 leftClamp.setPower(1);
