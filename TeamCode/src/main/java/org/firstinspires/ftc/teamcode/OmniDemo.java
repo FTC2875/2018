@@ -54,9 +54,9 @@ public class OmniDemo extends LinearOpMode {
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
-        leftfrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        leftfrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightfrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        leftbackMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftbackMotor.setDirection(DcMotor.Direction.REVERSE);
         rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
         raiser.setDirection(DcMotor.Direction.FORWARD);
         leftClamp.setDirection(CRServo.Direction.FORWARD);
@@ -83,10 +83,12 @@ public class OmniDemo extends LinearOpMode {
                 leftClamp.setPower(0);
                 rightClamp.setPower(0);
             }
-            if(gamepad1.dpad_up){
+            if (gamepad1.dpad_up){
                 raiser.setPower(1);
-            }   else if(gamepad1.dpad_down){
+            } else if(gamepad1.dpad_down){
                 raiser.setPower(-1);
+            } else {
+                raiser.setPower(0);
             }
             //telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
             //telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
