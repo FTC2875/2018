@@ -34,7 +34,7 @@ public class OmniDemo extends LinearOpMode {
     private DcMotor leftbackMotor;
     private DcMotor raiser;
     private CRServo leftClamp;
-    private Servo rightClamp;
+    private CRServo rightClamp;
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -50,7 +50,7 @@ public class OmniDemo extends LinearOpMode {
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
         raiser = hardwareMap.dcMotor.get("raiser");
         leftClamp = hardwareMap.crservo.get("leftClamp");
-        rightClamp = hardwareMap.servo.get("rightClamp");
+        rightClamp = hardwareMap.crservo.get("rightClamp");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -60,7 +60,7 @@ public class OmniDemo extends LinearOpMode {
         rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
         raiser.setDirection(DcMotor.Direction.FORWARD);
         leftClamp.setDirection(CRServo.Direction.FORWARD);
-        rightClamp.setDirection(Servo.Direction.FORWARD);
+        rightClamp.setDirection(CRServo.Direction.REVERSE);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -75,13 +75,13 @@ public class OmniDemo extends LinearOpMode {
 
             if(gamepad1.dpad_left){
                 leftClamp.setPower(1);
-                rightClamp.setPosition(0);
+                rightClamp.setPower(1);
             } else if(gamepad1.dpad_right){
                 leftClamp.setPower(-1);
-                rightClamp.setPosition(0);
+                rightClamp.setPower(-1);
             } else {
                 leftClamp.setPower(0);
-                rightClamp.setPosition(0);
+                rightClamp.setPower(0);
             }
             if(gamepad1.dpad_up){
                 raiser.setPower(1);
