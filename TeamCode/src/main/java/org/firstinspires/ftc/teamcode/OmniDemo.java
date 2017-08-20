@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -32,7 +33,7 @@ public class OmniDemo extends LinearOpMode {
     private DcMotor rightbackMotor;
     private DcMotor leftbackMotor;
     private DcMotor raiser;
-    private Servo leftClamp;
+    private CRServo leftClamp;
     private Servo rightClamp;
     @Override
     public void runOpMode() {
@@ -48,18 +49,18 @@ public class OmniDemo extends LinearOpMode {
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
         raiser = hardwareMap.dcMotor.get("raiser");
-        leftClamp = hardwareMap.servo.get("leftClamp");
+        leftClamp = hardwareMap.crservo.get("leftClamp");
         rightClamp = hardwareMap.servo.get("rightClamp");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
         leftfrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        rightfrontMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        rightfrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         leftbackMotor.setDirection(DcMotor.Direction.FORWARD);
-        rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
         raiser.setDirection(DcMotor.Direction.FORWARD);
-        leftClamp.setDirection(Servo.Direction.FORWARD);
-        rightClamp.setDirection((Servo.Direction.FORWARD));
+        leftClamp.setDirection(CRServo.Direction.FORWARD);
+        rightClamp.setDirection(Servo.Direction.FORWARD);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -69,24 +70,29 @@ public class OmniDemo extends LinearOpMode {
             leftfrontMotor.setPower(-gamepad1.right_stick_y);
             rightbackMotor.setPower(-gamepad1.right_stick_y);
 
-            leftbackMotor.setPower(-gamepad1.right_stick_x);
-            rightfrontMotor.setPower(-gamepad1.right_stick_x);
-            raiser.setPower(-gamepad1.left_stick_y);
+            leftbackMotor.setPower(-gamepad1.left_stick_x);
+            rightfrontMotor.setPower(-gamepad1.left_stick_x);
+
             if(gamepad1.dpad_left){
-                leftClamp.setPosition(1);
+                leftClamp.setPower(1);
                 rightClamp.setPosition(0);
             } else if(gamepad1.dpad_right){
-                leftClamp.setPosition(0);
-                rightClamp.setPosition(1);
+                leftClamp.setPower(-1);
+                rightClamp.setPosition(0);
             } else {
-                leftClamp.setPosition(0.5);
-                rightClamp.setPosition(0.5);
+                leftClamp.setPower(0);
+                rightClamp.setPosition(0);
             }
-            telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
-            telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
+            if(gamepad1.dpad_up){
+                raiser.setPower(1);
+            }   else if(gamepad1.dpad_down){
+                raiser.setPower(-1);
+            }
+            //telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
+            //telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
 
-            telemetry.addData("Right Position: ", rightClamp.getPosition());
-            telemetry.addData("Left Position: ", leftClamp.getPosition());
+            //telemetry.addData("Right Position: ", rightClamp.getPower());
+            telemetry.addData("Left Position: ", leftClamp.getPower());
 
             telemetry.update();
         }
