@@ -79,9 +79,11 @@ public class OmniDemo extends LinearOpMode {
                 leftClamp.setPosition(leftClamp.getPosition()-.1);
                 rightClamp.setPosition(rightClamp.getPosition()+.1);
             }
+            telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
+            telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
+
 
             telemetry.update();
-
         }
     }
 }
