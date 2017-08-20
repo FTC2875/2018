@@ -73,15 +73,20 @@ public class OmniDemo extends LinearOpMode {
             rightfrontMotor.setPower(-gamepad1.right_stick_x);
             raiser.setPower(-gamepad1.left_stick_y);
             if(gamepad1.dpad_left){
-                leftClamp.setPosition(leftClamp.getPosition()+.1);
-                rightClamp.setPosition(rightClamp.getPosition()-.1);
+                leftClamp.setPosition(1);
+                rightClamp.setPosition(0);
             } else if(gamepad1.dpad_right){
-                leftClamp.setPosition(leftClamp.getPosition()-.1);
-                rightClamp.setPosition(rightClamp.getPosition()+.1);
-            }v
+                leftClamp.setPosition(0);
+                rightClamp.setPosition(1);
+            } else {
+                leftClamp.setPosition(0.5);
+                rightClamp.setPosition(0.5);
+            }
             telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
             telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
 
+            telemetry.addData("Right Position: ", rightClamp.getPosition());
+            telemetry.addData("Left Position: ", leftClamp.getPosition());
 
             telemetry.update();
         }

@@ -50,11 +50,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * This particular OpMode just executes a basic Tank Drive Teleop for a PushBot
  * It includes all the skeletal structure that all linear OpModes contain.
  *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Use Android Studios to Cop   y this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="RevTest", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="SpinnerDemo", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class SpinnerDemo extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -62,6 +62,7 @@ public class SpinnerDemo extends LinearOpMode {
     private DcMotor leftMotor;
     private DcMotor spinner;
     private DcMotor basket;
+
 
     @Override
     public void runOpMode() {
