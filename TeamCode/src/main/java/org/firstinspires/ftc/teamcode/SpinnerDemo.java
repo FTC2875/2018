@@ -36,8 +36,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -61,7 +63,8 @@ public class SpinnerDemo extends LinearOpMode {
     private DcMotor rightMotor;
     private DcMotor leftMotor;
     private DcMotor spinner;
-    private DcMotor basket;
+    private CRServo leftFlick;
+    private CRServo rightFlick;
 
 
     @Override
@@ -76,7 +79,8 @@ public class SpinnerDemo extends LinearOpMode {
         leftMotor  = hardwareMap.dcMotor.get("left");
         rightMotor = hardwareMap.dcMotor.get("right");
         spinner = hardwareMap.dcMotor.get("spinner");
-        basket = hardwareMap.dcMotor.get("basket");
+        leftFlick = hardwareMap.crservo.get("left_flicker");
+        rightFlick = hardwareMap.crservo.get("right_flicker");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -93,17 +97,19 @@ public class SpinnerDemo extends LinearOpMode {
             rightMotor.setPower(-gamepad1.right_stick_y);
 
             if (gamepad1.right_bumper) {
-                spinner.setPower(1.0);
+                spinner.setPower(0.5);
             } else if (gamepad1.left_bumper) {
-                spinner.setPower(-1.0);
+                spinner.setPower(-0.5);
             } else{
                 spinner.setPower(0);
             }
 
-            if (gamepad1.dpad_left) {
-                basket.setPower(1.0);
-            } else if (gamepad1.dpad_right) {
-                basket.setPower(-1.0);
+            if (gamepad1.dpad_up) {
+                leftFlick.setPower(1.0);
+                rightFlick.setPower(-1.0);
+            } else {
+                leftFlick.setPower(-1.0);
+                rightFlick.setPower(1.0);
             }
 
             telemetry.update();

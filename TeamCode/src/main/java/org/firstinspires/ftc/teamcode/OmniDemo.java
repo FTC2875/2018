@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -36,6 +37,10 @@ public class OmniDemo extends LinearOpMode {
     private CRServo leftClamp;
     private CRServo rightClamp;
 
+    private DigitalChannel raiserButton;
+
+    private boolean buttonFlag = false;
+
     private double slowFactor = 1;
     @Override
     public void runOpMode() {
@@ -53,6 +58,7 @@ public class OmniDemo extends LinearOpMode {
         raiser = hardwareMap.dcMotor.get("raiser");
         leftClamp = hardwareMap.crservo.get("leftClamp");
         rightClamp = hardwareMap.crservo.get("rightClamp");
+        raiserButton = hardwareMap.digitalChannel.get("raiseButton");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -63,17 +69,14 @@ public class OmniDemo extends LinearOpMode {
         raiser.setDirection(DcMotor.Direction.FORWARD);
         leftClamp.setDirection(CRServo.Direction.FORWARD);
         rightClamp.setDirection(CRServo.Direction.REVERSE);
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-            leftfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-            rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
 
-            leftbackMotor.setPower(-gamepad1.left_stick_x * slowFactor);
-            rightfrontMotor.setPower(-gamepad1.left_stick_x * slowFactor);
 
             if (gamepad1.left_bumper) {
                 slowFactor = 0.35;
@@ -92,19 +95,75 @@ public class OmniDemo extends LinearOpMode {
                 rightClamp.setPower(0);
             }
             if (gamepad1.dpad_up){
-                raiser.setPower(1);
+                if (raiserButton.getState()) { // this is negated for some reason
+                    raiser.setPower(1);
+                }
             } else if(gamepad1.dpad_down){
                 raiser.setPower(-1);
             } else {
                 raiser.setPower(0);
             }
+
+            if (gamepad1.left_trigger > 0.001) {
+                setRotationMovement();
+                leftfrontMotor.setPower(1 * slowFactor);
+                rightbackMotor.setPower(1 * slowFactor);
+
+                leftbackMotor.setPower(1 * slowFactor);
+                rightfrontMotor.setPower(1 * slowFactor);
+            } else if (gamepad1.right_trigger > 0.001) {
+                setRotationMovement();
+                leftfrontMotor.setPower(-1 * slowFactor);
+                rightbackMotor.setPower(-1 * slowFactor);
+
+                leftbackMotor.setPower(-1 * slowFactor);
+                rightfrontMotor.setPower(-1 * slowFactor);
+            } else {
+                setDefaultMovement();
+                leftfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+                rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+
+                leftbackMotor.setPower(-gamepad1.left_stick_x * slowFactor);
+                rightfrontMotor.setPower(-gamepad1.left_stick_x * slowFactor);
+            }
+
+            if (gamepad1.a) {
+                if (!buttonFlag) {
+                    buttonFlag = true;
+                    raiser.setPower(1);
+                }
+            } else {
+                if (buttonFlag) {
+                    if (raiserButton.getState()) {
+                        raiser.setPower(1);
+                    } else {
+                        buttonFlag = false;
+                    }
+                }
+            }
+
             //telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
             //telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
 
             //telemetry.addData("Right Position: ", rightClamp.getPower());
             telemetry.addData("Left Position: ", leftClamp.getPower());
+            telemetry.addData("Button: ", raiserButton.getState());
 
             telemetry.update();
         }
+    }
+
+    private void setDefaultMovement() {
+        leftfrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        rightfrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        leftbackMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
+    }
+
+    private void setRotationMovement() {
+        leftfrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightfrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        leftbackMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
     }
 }
