@@ -97,9 +97,9 @@ public class SpinnerDemo extends LinearOpMode {
             rightMotor.setPower(-gamepad1.right_stick_y);
 
             if (gamepad1.right_bumper) {
-                spinner.setPower(0.5);
+                spinner.setPower(1);
             } else if (gamepad1.left_bumper) {
-                spinner.setPower(-0.5);
+                spinner.setPower(-1);
             } else{
                 spinner.setPower(0);
             }

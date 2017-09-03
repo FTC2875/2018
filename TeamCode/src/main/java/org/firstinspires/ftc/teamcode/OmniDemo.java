@@ -97,7 +97,10 @@ public class OmniDemo extends LinearOpMode {
             if (gamepad1.dpad_up){
                 if (raiserButton.getState()) { // this is negated for some reason
                     raiser.setPower(1);
+                } else {
+                    raiser.setPower(0);
                 }
+
             } else if(gamepad1.dpad_down){
                 raiser.setPower(-1);
             } else {
