@@ -84,9 +84,9 @@ import java.util.List;
  * is explained below.
  */
 
-@Autonomous(name="Concept: Vuforia Navigation", group ="Concept")
+@Autonomous(name="Concept: Vuforia Navigation2", group ="Concept")
 //@Disabled
-public class ConceptVuforiaNavigation extends LinearOpMode {
+public class ConceptVuforiaNavigationOrig extends LinearOpMode {
 
     public static final String TAG = "Vuforia Sample";
 
@@ -132,22 +132,19 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
          * sets are stored in the 'assets' part of our application (you'll see them in the Android
          * Studio 'Project' view over there on the left of the screen). You can make your own datasets
          * with the Vuforia Target Manager: https://developer.vuforia.com/target-manager. PDFs for the
-         * example "columnList", datasets can be found in in this project in the
+         * example "StonesAndChips", datasets can be found in in this project in the
          * documentation directory.
          */
-        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_Targets");
-        VuforiaTrackable leftTarget = columnLists.get(2);
-        leftTarget.setName("leftTarget");  // Left
+        VuforiaTrackables stonesAndChips = this.vuforia.loadTrackablesFromAsset("Stones_Only");
+        VuforiaTrackable redTarget = stonesAndChips.get(0);
+        redTarget.setName("RedTarget");  // Stones
 
-        VuforiaTrackable centerTarget  = columnLists.get(1);
-        centerTarget.setName("centerTarget");  // Center
-
-        VuforiaTrackable rightTarget  = columnLists.get(0);
-        rightTarget.setName("rightTarget");  // Right
+//        VuforiaTrackable blueTarget  = stonesAndChips.get(1);
+//        blueTarget.setName("BlueTarget");  // Chips
 
         /** For convenience, gather together all the trackable objects in one easily-iterable collection */
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(columnLists);
+        allTrackables.addAll(stonesAndChips);
 
         /**
          * We use units of mm here because that's the recommended units of measurement for the
@@ -216,55 +213,32 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
          * - Then we rotate it  90 around the field's Z access to face it away from the audience.
          * - Finally, we translate it back along the X axis towards the red audience wall.
          */
-        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix redTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
                 is a negative translation in X.*/
-                .translation( 0, 0, 0)
+                .translation(-mmFTCFieldWidth/2, 0, 0)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        leftTarget.setLocation(leftTargetLocationOnField);
-        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
+                        AngleUnit.DEGREES, 90, 90, 0));
+        redTarget.setLocation(redTargetLocationOnField);
+        RobotLog.ii(TAG, "Red Target=%s", format(redTargetLocationOnField));
 
        /*
         * To place the Stones Target on the Blue Audience wall:
         * - First we rotate it 90 around the field's X axis to flip it upright
         * - Finally, we translate it along the Y axis towards the blue audience wall.
         */
-        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        centerTarget.setLocation(centerTargetLocationOnField);
-        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
-
-
-        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        centerTarget.setLocation(rightTargetLocationOnField);
-
-
-
-
-        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
-
-
-
-
-
-
-
+//        OpenGLMatrix blueTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the Blue Audience wall.
+//                Our translation here is a positive translation in Y.*/
+//                .translation(0, mmFTCFieldWidth/2, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 90, 0, 0));
+//        blueTarget.setLocation(blueTargetLocationOnField);
+//        RobotLog.ii(TAG, "Blue Target=%s", format(blueTargetLocationOnField));
 
         /**
          * Create a transformation matrix describing where the phone is on the robot. Here, we
@@ -290,9 +264,9 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
          * listener is a {@link VuforiaTrackableDefaultListener} and can so safely cast because
          * we have not ourselves installed a listener of a different type.
          */
-        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)redTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        //((VuforiaTrackableDefaultListener)blueTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+
         /**
          * A brief tutorial: here's how all the math is going to work:
          *
@@ -318,7 +292,7 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
         waitForStart();
 
         /** Start tracking the data sets we care about. */
-        columnLists.activate();
+        stonesAndChips.activate();
 
         while (opModeIsActive()) {
 
