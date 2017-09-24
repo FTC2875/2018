@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.media.MediaPlayer;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -42,6 +44,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.io.IOException;
 
 /**
  * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
@@ -66,7 +70,7 @@ public class SpinnerDemo extends LinearOpMode {
     private CRServo leftFlick;
     private CRServo rightFlick;
 
-
+    //private MediaPlayer smash;
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -82,12 +86,20 @@ public class SpinnerDemo extends LinearOpMode {
         leftFlick = hardwareMap.crservo.get("left_flicker");
         rightFlick = hardwareMap.crservo.get("right_flicker");
 
+        //smash = MediaPlayer.create(hardwareMap.appContext, R.raw.smash);
+
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
         leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
+//        try {
+//          //  smash.prepare();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
@@ -98,10 +110,15 @@ public class SpinnerDemo extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 spinner.setPower(1);
+               // smash.start();
+
             } else if (gamepad1.left_bumper) {
                 spinner.setPower(-1);
-            } else{
+               // smash.start();
+
+            } else {
                 spinner.setPower(0);
+               // smash.pause();
             }
 
             if (gamepad1.dpad_up) {

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.media.MediaPlayer;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -41,6 +43,9 @@ public class OmniDemo extends LinearOpMode {
 
     private boolean buttonFlag = false;
 
+    private MediaPlayer smash;
+    private MediaPlayer running;
+
     private double slowFactor = 1;
     @Override
     public void runOpMode() {
@@ -70,13 +75,17 @@ public class OmniDemo extends LinearOpMode {
         leftClamp.setDirection(CRServo.Direction.FORWARD);
         rightClamp.setDirection(CRServo.Direction.REVERSE);
 
+        smash = MediaPlayer.create(hardwareMap.appContext, R.raw.smash);
+        running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
+        running.start();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            running.pause();
+            smash.start();
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-
 
             if (gamepad1.left_bumper) {
                 slowFactor = 0.35;
@@ -97,12 +106,16 @@ public class OmniDemo extends LinearOpMode {
             if (gamepad1.dpad_up){
                 if (raiserButton.getState()) { // this is negated for some reason
                     raiser.setPower(1);
+                    buttonFlag = false; // overrides a
+
                 } else {
                     raiser.setPower(0);
                 }
 
             } else if(gamepad1.dpad_down){
                 raiser.setPower(-1);
+                buttonFlag = false;
+
             } else {
                 raiser.setPower(0);
             }
