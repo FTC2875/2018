@@ -122,6 +122,9 @@ public class FrameGrabber implements CameraBridgeViewBase.CvCameraViewListener2 
 
         //process the image using the provided imageProcessor
         result = imageProcessor.process(frameTime, frame, saveImages); //process
+
+        Log.d(TAG, frame.toString());
+        Log.d(TAG, result.toString());
         frame = result.getFrame(); //get the output frame
         Log.i(TAG, "Result: " + result);
 

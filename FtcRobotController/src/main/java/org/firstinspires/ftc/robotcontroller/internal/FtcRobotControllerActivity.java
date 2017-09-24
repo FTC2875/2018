@@ -102,6 +102,7 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.features2d.FeatureDetector;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -209,8 +210,8 @@ public class FtcRobotControllerActivity extends Activity {
 
   ////////////// START VISION PROCESSING CODE //////////////
 
-  static final int FRAME_WIDTH_REQUEST = 176;
-  static final int FRAME_HEIGHT_REQUEST = 144;
+  static final int FRAME_WIDTH_REQUEST = 720;
+  static final int FRAME_HEIGHT_REQUEST = 720;
 
   // Loads camera view of OpenCV for us to use. This lets us see using OpenCV
   private CameraBridgeViewBase cameraBridgeViewBase;

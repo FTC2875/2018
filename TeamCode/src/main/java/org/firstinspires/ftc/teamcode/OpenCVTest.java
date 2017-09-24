@@ -83,7 +83,7 @@ public class OpenCVTest extends LinearOpMode {
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
-        frame.setImageProcessor(new BallCenterProcessor(false));
+        frame.setImageProcessor(new BallCenterProcessor(true));
         waitForStart();
         runtime.reset();
 
@@ -92,8 +92,12 @@ public class OpenCVTest extends LinearOpMode {
             frame.grabSingleFrame();
             BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
 
-            telemetry.addData("Status", "X " + result.getxCoord());
-            telemetry.addData("Status", "Y " + result.getyCoord());
+            if (result.isFoundResult()) { // check if found anything
+                telemetry.addData("Status", "X " + result.getxCoord());
+                telemetry.addData("Status", "Y " + result.getyCoord());
+            } else {
+                telemetry.addData("Status", "No contours found");
+            }
             telemetry.update();
 
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)

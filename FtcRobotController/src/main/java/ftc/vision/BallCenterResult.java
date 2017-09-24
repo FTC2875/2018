@@ -7,10 +7,16 @@ package ftc.vision;
 public class BallCenterResult {
     private int xCoord;
     private int yCoord;
+    private boolean foundResult;
 
     public BallCenterResult(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
+        this.foundResult = true;
+    }
+
+    public BallCenterResult() {
+        this.foundResult = false;
     }
 
     public int getxCoord() {
@@ -21,8 +27,12 @@ public class BallCenterResult {
         return yCoord;
     }
 
+    public boolean isFoundResult() {
+        return foundResult;
+    }
+
     @Override
     public String toString() {
-        return "X: " + xCoord + "Y: " + yCoord;
+        return "X: " + xCoord + " Y: " + yCoord;
     }
 }
