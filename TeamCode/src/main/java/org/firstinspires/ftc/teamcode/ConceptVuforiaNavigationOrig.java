@@ -86,6 +86,7 @@ import java.util.List;
 
 @Autonomous(name="Concept: Vuforia Navigation2", group ="Concept")
 //@Disabled
+//This OP mode was made just to test if the 3D model popped up if you just created the XML without 3D models
 public class ConceptVuforiaNavigationOrig extends LinearOpMode {
 
     public static final String TAG = "Vuforia Sample";
