@@ -84,7 +84,7 @@ import java.util.List;
  * is explained below.
  */
 
-@Autonomous(name="Concept: Vuforia Navigation", group ="Concept")
+@Autonomous(name="Concept: Vuforia Navigation3", group ="Concept")
 //@Disabled
 public class ConceptVuforiaNavigation3 extends LinearOpMode {
 

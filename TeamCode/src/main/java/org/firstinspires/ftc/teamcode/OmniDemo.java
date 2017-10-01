@@ -75,8 +75,8 @@ public class OmniDemo extends LinearOpMode {
         leftClamp.setDirection(CRServo.Direction.FORWARD);
         rightClamp.setDirection(CRServo.Direction.REVERSE);
 
-        smash = MediaPlayer.create(hardwareMap.appContext, R.raw.smash);
-        running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
+        //smash = MediaPlayer.create(hardwareMap.appContext, R.raw.smash);
+        //running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
         running.start();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

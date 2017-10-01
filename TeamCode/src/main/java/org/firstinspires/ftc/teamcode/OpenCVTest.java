@@ -95,6 +95,7 @@ public class OpenCVTest extends LinearOpMode {
             if (result.isFoundResult()) { // check if found anything
                 telemetry.addData("Status", "X " + result.getxCoord());
                 telemetry.addData("Status", "Y " + result.getyCoord());
+                telemetry.addData("Area", result.getArea());
             } else {
                 telemetry.addData("Status", "No contours found");
             }
