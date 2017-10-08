@@ -8,11 +8,13 @@ public class BallCenterResult {
     private int xCoord;
     private int yCoord;
     private boolean foundResult;
+    private double area;
 
-    public BallCenterResult(int xCoord, int yCoord) {
+    public BallCenterResult(int xCoord, int yCoord, double area) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.foundResult = true;
+        this.area = area;
     }
 
     public BallCenterResult() {
@@ -29,6 +31,10 @@ public class BallCenterResult {
 
     public boolean isFoundResult() {
         return foundResult;
+    }
+
+    public double getArea() {
+        return area;
     }
 
     @Override

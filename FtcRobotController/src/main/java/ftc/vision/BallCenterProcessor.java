@@ -3,6 +3,7 @@ package ftc.vision;
 import android.util.Log;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
@@ -46,7 +47,14 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
         Mat thresholdedHSV = rgbaFrame.clone();
 
         List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.cvtColor(rgbaFrame, hsv, Imgproc.COLOR_RGB2HSV);
+
+        // erode and dilate to remove noise
+        Mat kernel = Mat.ones(5, 5, CvType.CV_8U);
+        Mat morphedImage = new Mat(rgbaFrame.size(), rgbaFrame.type());
+
+        Imgproc.morphologyEx(rgbaFrame, morphedImage, Imgproc.MORPH_OPEN, kernel);
+
+        Imgproc.cvtColor(morphedImage, hsv, Imgproc.COLOR_RGB2HSV);
 
         if (!detectRed) {
             // thresholding for blue ball
@@ -62,6 +70,8 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
         if (contours.size() > 0) {
             Log.i(TAG, "Found at least one contour: " + contours.size());
             MatOfPoint largestContour = findLargestContour(contours);
+
+            double area = Imgproc.contourArea(largestContour);
             Moments m = Imgproc.moments(largestContour);
 
             int center_x = (int) (m.get_m10() / m.get_m00());
@@ -69,7 +79,7 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
 
             Imgproc.circle(rgbaFrame, new Point(center_x, center_y), 3, new Scalar(100, 100, 100));
 
-            return new ImageProcessorResult<>(startTime, thresholdedHSV, new BallCenterResult(center_x, center_y));
+            return new ImageProcessorResult<>(startTime, thresholdedHSV, new BallCenterResult(center_x, center_y, area));
         } else {
             Log.i(TAG, "No contours found");
             hsv.release();
