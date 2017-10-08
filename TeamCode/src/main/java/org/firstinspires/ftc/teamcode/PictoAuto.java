@@ -71,7 +71,7 @@ public class PictoAuto extends LinearOpMode {
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_Targets");
+        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
         VuforiaTrackable leftTarget = columnLists.get(2);
         leftTarget.setName("leftTarget");  // Left
 
@@ -123,9 +123,7 @@ public class PictoAuto extends LinearOpMode {
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 0, 0, 0));
-        centerTarget.setLocation(rightTargetLocationOnField);
-
-
+        rightTarget.setLocation(rightTargetLocationOnField);
         RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
 
 
@@ -165,14 +163,25 @@ public class PictoAuto extends LinearOpMode {
                 //  RobotLog.vv(TAG, "robot=%s", format(lastLocation));
              //   String form_string =
                 String strPos = format(lastLocation);
+                // telemetry.addData("Pos", values);ion);
 
                 telemetry.addData("Pos", strPos);
-                strPos = finalize(strPos);
-                telemetry.addData("Pos", strPos);
+                String[] values = finalize(strPos);
+
+                telemetry.addData("Pitch", values[0]);
+                telemetry.addData("Roll", values[1]);
+                telemetry.addData("Yaw", values[2]);
+                telemetry.addData("Y axis", values[3]);
+                telemetry.addData("Z axis", values[4]);
+                telemetry.addData("X axis", values[5]);
+
+
+                telemetry.update();
 
 
             } else {
                 telemetry.addData("Pos", "Unknown");
+                telemetry.update();
             }
             telemetry.update();
         }
@@ -183,29 +192,31 @@ public class PictoAuto extends LinearOpMode {
         return transformationMatrix.formatAsTransform();
     }
 
-    String finalize(String strPos, String[] valuess){
-        int start, end;
+    String [] finalize(String strPos){
+        String[] values = new String [6];
         strPos = strPos.replaceAll("EXTRINSIC XYZ", "");
-        strPos = strPos.replaceAll("{", "");
-        strPos = strPos.replaceAll("}", "");
-        for(int i = 0; i < strPos.length(); i++){
-            if(strPos.substring(i,Math.min(i+1, strPos.length())).equals("")) {
-                start = i;
-            }
-            for(int h = i; h < strPos.length(); h++){
-                if(strPos.substring(i,Math.min(i+1, strPos.length())).equals("")){
-                     end = h;
+        strPos = strPos.replaceAll("\\{", "");
+        strPos = strPos.replaceAll("\\}", "");
+        for(int a = 0; a <6; a++) {
+            for (int i = 0; i < strPos.length(); i++) {
+                if (strPos.substring(i, Math.min(i + 1, strPos.length())).equals("")) {
+                    for (int h = i; h < strPos.length(); h++) {
+                        if (strPos.substring(i, Math.min(i + 1, strPos.length())).equals("")) {
+
+                            values[a] = strPos.substring(i,h);
+                            strPos = strPos.substring(h);
+                        }
+
+                        //need to finish parsing string from indexes
+                    }
 
                 }
 
-                //need to finish parsing string from indexes
+
             }
-
-
-
         }
+        return values;
 
 
-        return strPos;
     }
 }

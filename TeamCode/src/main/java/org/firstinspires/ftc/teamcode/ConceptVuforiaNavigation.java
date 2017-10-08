@@ -253,10 +253,6 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 0, 0, 0));
         centerTarget.setLocation(rightTargetLocationOnField);
-
-
-
-
         RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
 
 
