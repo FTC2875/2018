@@ -163,21 +163,9 @@ public class PictoAuto extends LinearOpMode {
             }
 
             if (lastLocation != null) {
-                //  RobotLog.vv(TAG, "robot=%s", format(lastLocation));
-             //   String form_string =
                 String strPos = format(lastLocation);
-                // telemetry.addData("Pos", values);ion);
 
-                telemetry.addData("Pos", strPos);
                 String[] values = finalize(strPos);
-
-                telemetry.addData("Pitch", values[0]);
-                telemetry.addData("Roll", values[1]);
-                telemetry.addData("Yaw", values[2]);
-                telemetry.addData("Y axis", values[3]);
-                telemetry.addData("Z axis", values[4]);
-                telemetry.addData("X axis", values[5]);
-
             } else {
                 telemetry.addData("Pos", "Unknown");
             }
