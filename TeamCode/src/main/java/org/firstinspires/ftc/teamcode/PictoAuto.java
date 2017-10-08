@@ -32,10 +32,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -175,13 +178,8 @@ public class PictoAuto extends LinearOpMode {
                 telemetry.addData("Z axis", values[4]);
                 telemetry.addData("X axis", values[5]);
 
-
-                telemetry.update();
-
-
             } else {
                 telemetry.addData("Pos", "Unknown");
-                telemetry.update();
             }
             telemetry.update();
         }
@@ -193,28 +191,11 @@ public class PictoAuto extends LinearOpMode {
     }
 
     String [] finalize(String strPos){
-        String[] values = new String [6];
-        strPos = strPos.replaceAll("EXTRINSIC XYZ", "");
-        strPos = strPos.replaceAll("\\{", "");
-        strPos = strPos.replaceAll("\\}", "");
-        for(int a = 0; a <6; a++) {
-            for (int i = 0; i < strPos.length(); i++) {
-                if (strPos.substring(i, Math.min(i + 1, strPos.length())).equals("")) {
-                    for (int h = i; h < strPos.length(); h++) {
-                        if (strPos.substring(i, Math.min(i + 1, strPos.length())).equals("")) {
 
-                            values[a] = strPos.substring(i,h);
-                            strPos = strPos.substring(h);
-                        }
-
-                        //need to finish parsing string from indexes
-                    }
-
-                }
-
-
-            }
-        }
+        strPos = strPos.replaceAll("[^0-9\\s+.-]", "");
+        strPos = strPos.trim();
+        strPos = strPos +" ";
+        String[] values = strPos.split("\\s+");
         return values;
 
 
