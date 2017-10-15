@@ -104,9 +104,11 @@ public class AutoBlue extends LinearOpMode {
     private Telemetry.Item debug;
 
     // vuforia stuff
-    private OpenGLMatrix lastLocation = null;
+    private OpenGLMatrix lastLocation;
     private VuforiaLocalizer vuforia;
     private VuforiaTrackable leftTarget, rightTarget, centerTarget;
+    private Pictographs currentTarget;
+    private List<VuforiaTrackable> allTrackables;
 
     @Override
     public void runOpMode() {
@@ -115,9 +117,9 @@ public class AutoBlue extends LinearOpMode {
 
         // initialize motors
         leftBackMotor = hardwareMap.dcMotor.get("leftback");
-        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
+        //leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
         rightBackMotor = hardwareMap.dcMotor.get("rightback");
-        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
+        //rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -152,7 +154,7 @@ public class AutoBlue extends LinearOpMode {
         rightTarget.setName("rightTarget");  // Right
 
 
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(columnLists);
 
 
@@ -217,10 +219,12 @@ public class AutoBlue extends LinearOpMode {
         while (opModeIsActive()) {
 //            state.setValue("Jewel Mode");
 //            moveToBall();
-            telemetry.addData("new", "hi");
             Pictographs pic = detectPictograph();
+            currentTarget = pic;
             telemetry.addData("Pic", pic);
             telemetry.update();
+
+            realignWithPicto();
         }
     }
 
@@ -289,36 +293,47 @@ public class AutoBlue extends LinearOpMode {
     }
 
     private void setMotorNormal() {
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     private void setMotorRunToPos() {
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     private void resetMotors() {
-        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    private void normalDrive(double leftFront, double leftBack, double rightFront, double rightBack) {
+    private void normalDrive(double leftFront, double leftBack, double rightFront, double rightBack, long time) {
         setMotorNormal();
-        leftFrontMotor.setPower(leftFront);
+      //  leftFrontMotor.setPower(leftFront);
         leftBackMotor.setPower(leftBack);
-        rightFrontMotor.setPower(rightFront);
+       // rightFrontMotor.setPower(rightFront);
         rightBackMotor.setPower(rightBack);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopMotors();
     }
 
     private void stopMotors() {
-        normalDrive(0, 0, 0, 0);
+        setMotorNormal();
+        //leftFrontMotor.setPower(0);
+        leftBackMotor.setPower(0);
+        //rightFrontMotor.setPower(0);
+        rightBackMotor.setPower(0);
     }
 
 
@@ -334,25 +349,144 @@ public class AutoBlue extends LinearOpMode {
         encoderDrive(inches, inches, inches, inches, speed);
     }
 
+    private void rotateRight(int time, double speed) {
+        setMotorNormal();
+
+        leftBackMotor.setPower(speed);
+        rightBackMotor.setPower(speed);
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopMotors();
+    }
+
+    private void rotateLeft(int time, double speed) {
+        setMotorNormal();
+        leftBackMotor.setPower(-speed);
+        rightBackMotor.setPower(-speed);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopMotors();
+    }
+
+    private void realignWithPicto() {
+        for (VuforiaTrackable trackable : allTrackables) {
+            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+
+            // found the pictograph
+            if (robotLocationTransform != null) {
+                lastLocation = robotLocationTransform;
+            } else if (lastLocation == null) {
+                return;
+            }
+
+            double yaw, x, y;
+            y = Double.parseDouble(finalize(format(lastLocation))[5]);
+            RealignState realignState = RealignState.YAW;
+
+            boolean isDone = false;
+            // do this until we are good
+            do {
+
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+
+                String[] data = finalize(format(lastLocation));
+                yaw = Double.parseDouble(data[1]);
+                x = Double.parseDouble(data[3]);
+                y = Double.parseDouble(data[5]);
+
+                if (realignState == RealignState.YAW) {
+                    telemetry.addData("RealignStatus", "Fixing Yaw");
+                    telemetry.addData("Yaw", yaw);
+                    if (fixYaw(yaw)) {
+                        realignState = RealignState.X;
+                    }
+                } else if (realignState == RealignState.X) {
+                    telemetry.addData("RealignStatus", "Fixing X");
+                    telemetry.addData("X", x);
+                    realignState = RealignState.Y;
+//                    if (fixX(x)) {
+//                        realignState = RealignState.Y;
+//                    }
+                } else if (realignState == RealignState.Y) {
+                    telemetry.addData("RealignStatus", "Fixing Y");
+                    telemetry.addData("Y", y);
+                    if (fixY(y)) {
+                        isDone = true;
+                    }
+                }
+
+                telemetry.update();
+            } while (!isDone && opModeIsActive());
+            stopMotors();
+
+        }
+    }
+
+    private boolean fixYaw(double yaw) {
+        if (yaw < -5) {
+            rotateLeft(10, 0.08);
+        } else if (yaw > 5) {
+            rotateRight(10, 0.08);
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean fixX(double x) {
+        if (x > 0) {
+            strafeLeftFor(1, 0.5);
+        } else if (x < 0) {
+            strafeRightFor(1, 0.5);
+        } else {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean fixY(double y) {
+        if (y > 0.27) {
+            normalDrive(0, 0.08, 0, -0.08, 10);
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+
+
+
     private void encoderDrive(int leftFront, int leftBack, int rightFront, int rightBack, double power) {
         setMotorRunToPos();
         resetMotors();
 
-        leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
+      //  leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
         leftBackMotor.setTargetPosition((int)(leftBack * COUNTS_PER_INCH));
-        rightFrontMotor.setTargetPosition((int)(rightFront * COUNTS_PER_INCH));
+       // rightFrontMotor.setTargetPosition((int)(rightFront * COUNTS_PER_INCH));
         rightBackMotor.setTargetPosition((int)(rightBack * COUNTS_PER_INCH));
 
-        leftFrontMotor.setPower(power);
+       // leftFrontMotor.setPower(power);
         leftBackMotor.setPower(power);
-        rightFrontMotor.setPower(power);
+      //  rightFrontMotor.setPower(power);
         rightBackMotor.setPower(power);
 
         // hang until they're done
-        while (leftFrontMotor.isBusy() && leftBackMotor.isBusy() && rightBackMotor.isBusy() && rightFrontMotor.isBusy()) {
-            telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
+        while (leftBackMotor.isBusy() && rightBackMotor.isBusy()) { // TODO add in front motors
+            //telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
             telemetry.addData("Left Back: ", leftBackMotor.getCurrentPosition());
-            telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
+            //telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getCurrentPosition());
             telemetry.update();
         }
@@ -380,6 +514,12 @@ public class AutoBlue extends LinearOpMode {
         LEFT,
         RIGHT,
         NOTHING
+    }
+
+    enum RealignState {
+        YAW,
+        X,
+        Y
     }
 
 
