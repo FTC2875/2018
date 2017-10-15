@@ -234,6 +234,8 @@ public class AutoBlue extends LinearOpMode {
         } else {
             return Pictographs.NOTHING;
         }
+
+        //TODO: last location thing
     }
 
     private void moveToBall() {
