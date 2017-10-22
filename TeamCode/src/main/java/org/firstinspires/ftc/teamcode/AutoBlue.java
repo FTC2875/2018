@@ -110,6 +110,8 @@ public class AutoBlue extends LinearOpMode {
     private Pictographs currentTarget;
     private List<VuforiaTrackable> allTrackables;
 
+    private double proportionalGain = .008;
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -378,18 +380,29 @@ public class AutoBlue extends LinearOpMode {
     private void realignWithPicto() {
         for (VuforiaTrackable trackable : allTrackables) {
             OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+            telemetry.addData("realignWithPicto", "Success");
+            telemetry.addData("RobotLocation transfor:", robotLocationTransform);
 
             // found the pictograph
+
             if (robotLocationTransform != null) {
                 lastLocation = robotLocationTransform;
+                System.out.println(lastLocation.getData());
+                telemetry.addData("lastLocation", "success");
             } else if (lastLocation == null) {
+                telemetry.addData("lastLocation", "fail");
                 return;
             }
 
             double yaw, x, y;
             y = Double.parseDouble(finalize(format(lastLocation))[5]);
-            RealignState realignState = RealignState.YAW;
 
+
+            RealignState realignState = RealignState.NOTHING;
+
+            //NEED TO FIGURE OUT WHY REALIGNSTATE ONLY WORKS FOR RIGHT PICTURE. WHY ROBOTLOCATIONTRANSFORM IS NULL FOR CENTER AND LEFT
+            telemetry.addLine("initiating realign");
+            telemetry.update();
             boolean isDone = false;
             // do this until we are good
             do {
@@ -405,20 +418,20 @@ public class AutoBlue extends LinearOpMode {
                 x = Double.parseDouble(data[3]);
                 y = Double.parseDouble(data[5]);
 
-                if (realignState == RealignState.YAW) {
+                if (realignState == RealignState.YAW) {                 // fix the yaw by rotating itself till it's good
                     telemetry.addData("RealignStatus", "Fixing Yaw");
                     telemetry.addData("Yaw", yaw);
                     if (fixYaw(yaw)) {
                         realignState = RealignState.X;
                     }
-                } else if (realignState == RealignState.X) {
+                } else if (realignState == RealignState.X) {            // fix the X by strafing till it's good
                     telemetry.addData("RealignStatus", "Fixing X");
                     telemetry.addData("X", x);
                     realignState = RealignState.Y;
-//                    if (fixX(x)) {
+//                    if (fixX(x)) {n
 //                        realignState = RealignState.Y;
 //                    }
-                } else if (realignState == RealignState.Y) {
+                } else if (realignState == RealignState.Y) {            // fix the Y by simply driving forward
                     telemetry.addData("RealignStatus", "Fixing Y");
                     telemetry.addData("Y", y);
                     if (fixY(y)) {
@@ -428,16 +441,32 @@ public class AutoBlue extends LinearOpMode {
 
                 telemetry.update();
             } while (!isDone && opModeIsActive());
-            stopMotors();
 
         }
+        stopMotors();
     }
 
     private boolean fixYaw(double yaw) {
         if (yaw < -5) {
-            rotateLeft(10, 0.08);
-        } else if (yaw > 5) {
-            rotateRight(10, 0.08);
+            rotateLeft((int) 100 , (Math.abs(yaw) * proportionalGain));
+            telemetry.addData("Error:" , -(yaw));
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else if (yaw<-2.5 && yaw>-5){
+            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            telemetry.addData("Error:" , yaw);
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else if (yaw > 5){
+            rotateRight((int) 100 , (Math.abs(yaw) * proportionalGain));
+            telemetry.addData("Error:" , yaw);
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else if (yaw>2.5 && yaw<5){
+            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            telemetry.addData("Error:" , yaw);
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
         } else {
             return true;
         }
@@ -458,7 +487,7 @@ public class AutoBlue extends LinearOpMode {
 
     private boolean fixY(double y) {
         if (y > 0.27) {
-            normalDrive(0, 0.08, 0, -0.08, 10);
+            //normalDrive(0, 0.08, 0, -0.08, 10);
         } else {
             return true;
         }
@@ -519,7 +548,8 @@ public class AutoBlue extends LinearOpMode {
     enum RealignState {
         YAW,
         X,
-        Y
+        Y,
+        NOTHING
     }
 
 
