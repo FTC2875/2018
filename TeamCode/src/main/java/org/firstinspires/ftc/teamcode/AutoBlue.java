@@ -395,7 +395,7 @@ public class AutoBlue extends LinearOpMode {
             do {
 
                 robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-
+                //TODO find whats wrong with it repeating
                 if (robotLocationTransform != null) {
                     lastLocation = robotLocationTransform;
                 }
