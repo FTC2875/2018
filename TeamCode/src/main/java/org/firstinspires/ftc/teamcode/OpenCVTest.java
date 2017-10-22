@@ -90,6 +90,16 @@ public class OpenCVTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             frame.grabSingleFrame();
+
+            while (!frame.isResultReady()) {
+                try {
+                    Thread.sleep(5); //sleep for 5 milliseconds wait for thing to be ready
+                    telemetry.addData("Ball", "Waiting for result");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
 
             if (result.isFoundResult()) { // check if found anything

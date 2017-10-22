@@ -136,91 +136,94 @@ public class AutoBlue extends LinearOpMode {
         //                                                //
         //                                                //
         ////////////////////////////////////////////////////
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
-        leftTarget = columnLists.get(2);
-        leftTarget.setName("leftTarget");  // Left
-
-        centerTarget  = columnLists.get(1);
-        centerTarget.setName("centerTarget");  // Center
-
-        rightTarget  = columnLists.get(0);
-        rightTarget.setName("rightTarget");  // Right
-
-
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(columnLists);
-
-
-        float mmPerInch        = 25.4f;
-        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
-        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
-
-
-        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the RED WALL. Our translation here
-                is a negative translation in X.*/
-                .translation( 0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        leftTarget.setLocation(leftTargetLocationOnField);
-        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
+//        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
+//        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+//        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+//
+//        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
+//        leftTarget = columnLists.get(2);
+//        leftTarget.setName("leftTarget");  // Left
+//
+//        centerTarget  = columnLists.get(1);
+//        centerTarget.setName("centerTarget");  // Center
+//
+//        rightTarget  = columnLists.get(0);
+//        rightTarget.setName("rightTarget");  // Right
+//
+//
+//        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+//        allTrackables.addAll(columnLists);
+//
+//
+//        float mmPerInch        = 25.4f;
+//        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
+//        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
 
 
-        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        centerTarget.setLocation(centerTargetLocationOnField);
-        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
+//        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the RED WALL. Our translation here
+//                is a negative translation in X.*/
+//                .translation( 0, 0, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        leftTarget.setLocation(leftTargetLocationOnField);
+//        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
+//
+//
+//        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the Blue Audience wall.
+//                Our translation here is a positive translation in Y.*/
+//                .translation(0, 0, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        centerTarget.setLocation(centerTargetLocationOnField);
+//        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
+//
+//
+//        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the Blue Audience wall.
+//                Our translation here is a positive translation in Y.*/
+//                .translation(0, 0, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        rightTarget.setLocation(rightTargetLocationOnField);
+//        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
+//
+//
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(0,0,0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        AxesReference.EXTRINSIC, AxesOrder.YZY,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
 
 
-        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        rightTarget.setLocation(rightTargetLocationOnField);
-        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
-
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(0,0,0)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.YZY,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
-
-
-        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        columnLists.activate();
+        //columnLists.activate(); TODO: need to disable this for opencv
+
+        sleep(1000);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-//            state.setValue("Jewel Mode");
-//            moveToBall();
-            telemetry.addData("new", "hi");
-            Pictographs pic = detectPictograph();
-            telemetry.addData("Pic", pic);
-            telemetry.update();
+            state.setValue("Jewel Mode");
+            moveToBall();
+
+            while (opModeIsActive()) {
+                telemetry.addData("end", "loop");
+                telemetry.update();
+            }
         }
     }
 
@@ -246,44 +249,49 @@ public class AutoBlue extends LinearOpMode {
 
         // threshold values
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
-        final int CENTER_POSITION = 270; // "center" value for the ball
-
+        final int CENTER_POSITION = 110; // "center" value for the ball
+        int count = 0;
         do {
+            telemetry.addData("In the loop", "description");
             frame.grabSingleFrame();
+            count++;
 
             while (!frame.isResultReady()) {
                 try {
                     Thread.sleep(5); //sleep for 5 milliseconds wait for thing to be ready
+                    telemetry.addData("Ball", "Waiting for result: " + count);
+                    telemetry.update();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                sleep(1000);
             }
 
-            BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
-
-            if (result.isFoundResult()) { // make sure something is found
-                area = result.getArea();
-                int x = result.getxCoord();
-                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
-
-                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-                    strafeRightFor(1, 0.7);
-                    ballStatus.setValue("Too much left");
-                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-                    strafeLeftFor(1, 0.7);
-                    ballStatus.setValue("Too much right");
-                } else {
-                    forwardFor(3, 0.7); // GO GO GO
-                    ballStatus.setValue("Good");
-                }
-
-                debug.setValue(offset);
-                telemetry.update();
-
-            } else {
-                ballStatus.setValue("Can't find balls, this is bad");
-                telemetry.update();
-            }
+//            BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
+//
+//            if (result.isFoundResult()) { // make sure something is found
+//                area = result.getArea();
+//                int x = result.getxCoord();
+//                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
+//
+//                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+//                    //strafeRightFor(1, 0.7);
+//                    ballStatus.setValue("Too much left");
+//                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+//                    //strafeLeftFor(1, 0.7);
+//                    ballStatus.setValue("Too much right");
+//                } else {
+//                    //forwardFor(3, 0.7); // GO GO GO
+//                    ballStatus.setValue("Good");
+//                }
+//
+//
+//                debug.setValue(offset);
+//                telemetry.update();
+//            } else {
+//                ballStatus.setValue("Can't find balls, this is bad");
+//                telemetry.update();
+//            }
 
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
