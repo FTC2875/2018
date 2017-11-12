@@ -221,12 +221,12 @@ public class AutoBlue extends LinearOpMode {
         while (opModeIsActive()) {
 //            state.setValue("Jewel Mode");
 //            moveToBall();
-            Pictographs pic = detectPictograph();
-            currentTarget = pic;
-            telemetry.addData("Pic", pic);
-            telemetry.update();
+//            Pictographs pic = detectPictograph();
+//            currentTarget = pic;
+//            telemetry.addData("Pic", pic);
+//            telemetry.update();
 
-            realignWithPicto();
+          realignWithPicto();
         }
     }
 
@@ -249,9 +249,9 @@ public class AutoBlue extends LinearOpMode {
         Telemetry.Item ballStatus = telemetry.addData("Status", "Beginning move ball");
         setMotorNormal();
         double area = 0; // arbitrary definition, area of the ball
-        frame.setImageProcessor(new BallCenterProcessor(true)); // set true for red, false for blue
 
         // threshold values
+        frame.setImageProcessor(new BallCenterProcessor(true)); // set true for red, false for blue
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 270; // "center" value for the ball
 
@@ -381,28 +381,25 @@ public class AutoBlue extends LinearOpMode {
     private void realignWithPicto() {
         for (VuforiaTrackable trackable : allTrackables) {
             OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-            telemetry.addData("realignWithPicto", "Success");
-            telemetry.addData("RobotLocation transfor:", robotLocationTransform);
+            //telemetry.addData("realignWithPicto", "Success");
 
             // found the pictograph
 
             if (robotLocationTransform != null) {
                 lastLocation = robotLocationTransform;
-                System.out.println(lastLocation.getData());
-                telemetry.addData("lastLocation", "success");
+              //  System.out.println(lastLocation.getData());
+               // telemetry.addData("lastLocation", "success");
             } else if (lastLocation == null) {
-                telemetry.addData("lastLocation", "fail");
-                return;
+               // telemetry.addData("lastLocation", "fail");
+                continue;
             }
 
             double yaw, x, y;
             y = Double.parseDouble(finalize(format(lastLocation))[5]);
 
 
-            RealignState realignState = RealignState.NOTHING;
+            RealignState realignState = RealignState.YAW;
 
-            //NEED TO FIGURE OUT WHY REALIGNSTATE ONLY WORKS FOR RIGHT PICTURE. WHY ROBOTLOCATIONTRANSFORM IS NULL FOR CENTER AND LEFT
-            telemetry.addLine("initiating realign");
             telemetry.update();
             boolean isDone = false;
             // do this until we are good
@@ -429,7 +426,7 @@ public class AutoBlue extends LinearOpMode {
                     telemetry.addData("RealignStatus", "Fixing X");
                     telemetry.addData("X", x);
                     realignState = RealignState.Y;
-//                    if (fixX(x)) {n
+//                    if (fixX(x)) {
 //                        realignState = RealignState.Y;
 //                    }
                 } else if (realignState == RealignState.Y) {            // fix the Y by simply driving forward
