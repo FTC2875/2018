@@ -242,6 +242,7 @@ public class AutoBlue extends LinearOpMode {
         }
 
         //TODO: last location thing
+        // haha
     }
 
     private void moveToBall() {
