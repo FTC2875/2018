@@ -112,9 +112,13 @@ public class AutoBlue extends LinearOpMode {
     private Telemetry.Item debug;
 
     // vuforia stuff
-    private OpenGLMatrix lastLocation = null;
+    private OpenGLMatrix lastLocation;
     private VuforiaLocalizer vuforia;
     private VuforiaTrackable leftTarget, rightTarget, centerTarget;
+    private Pictographs currentTarget;
+    private List<VuforiaTrackable> allTrackables;
+
+    private double proportionalGain = .008;
 
     @Override
     public void runOpMode() {
@@ -123,9 +127,9 @@ public class AutoBlue extends LinearOpMode {
 
         // initialize motors
         leftBackMotor = hardwareMap.dcMotor.get("leftback");
-        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
+        //leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
         rightBackMotor = hardwareMap.dcMotor.get("rightback");
-        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
+        //rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -161,7 +165,7 @@ public class AutoBlue extends LinearOpMode {
         rightTarget.setName("rightTarget");  // Right
 
 
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(columnLists);
 
 
@@ -220,20 +224,18 @@ public class AutoBlue extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        columnLists.activate(); //TODO: need to disable this for opencv
-
-        sleep(1000);
+        columnLists.activate();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            System.out.println("Op Mode Started");
-            state.setValue("Jewel Mode");
-            try {
-                System.out.println("Starting move to ball");
-                moveToBall();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            state.setValue("Jewel Mode");
+//            moveToBall();
+            Pictographs pic = detectPictograph();
+            currentTarget = pic;
+            telemetry.addData("Pic", pic);
+            telemetry.update();
+
+            realignWithPicto();
         }
     }
 
@@ -249,6 +251,7 @@ public class AutoBlue extends LinearOpMode {
         }
 
         //TODO: last location thing
+        // haha
     }
 
     private void moveToBall() throws InterruptedException {
@@ -303,9 +306,9 @@ public class AutoBlue extends LinearOpMode {
                     ballStatus.setValue("Good");
                 }
 
-
                 debug.setValue(offset);
                 telemetry.update();
+
             } else {
                 ballStatus.setValue("Can't find balls, this is bad");
                 telemetry.update();
@@ -315,32 +318,39 @@ public class AutoBlue extends LinearOpMode {
     }
 
     private void setMotorNormal() {
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     private void setMotorRunToPos() {
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     private void resetMotors() {
-        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    private void normalDrive(double leftFront, double leftBack, double rightFront, double rightBack) {
+    private void normalDrive(double leftFront, double leftBack, double rightFront, double rightBack, long time) {
         setMotorNormal();
-        leftFrontMotor.setPower(leftFront);
+      //  leftFrontMotor.setPower(leftFront);
         leftBackMotor.setPower(leftBack);
-        rightFrontMotor.setPower(rightFront);
+       // rightFrontMotor.setPower(rightFront);
         rightBackMotor.setPower(rightBack);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopMotors();
     }
 
     private void stopMotors() {
@@ -360,25 +370,168 @@ public class AutoBlue extends LinearOpMode {
         encoderDrive(inches, inches, inches, inches, speed);
     }
 
+    private void rotateRight(int time, double speed) {
+        setMotorNormal();
+
+        leftBackMotor.setPower(speed);
+        rightBackMotor.setPower(speed);
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopMotors();
+    }
+
+    private void rotateLeft(int time, double speed) {
+        setMotorNormal();
+        leftBackMotor.setPower(-speed);
+        rightBackMotor.setPower(-speed);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopMotors();
+    }
+
+    private void realignWithPicto() {
+        for (VuforiaTrackable trackable : allTrackables) {
+            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+            //telemetry.addData("realignWithPicto", "Success");
+
+            // found the pictograph
+
+            if (robotLocationTransform != null) {
+                lastLocation = robotLocationTransform;
+              //  System.out.println(lastLocation.getData());
+               // telemetry.addData("lastLocation", "success");
+            } else if (lastLocation == null) {
+               // telemetry.addData("lastLocation", "fail");
+                continue;
+            }
+
+            double yaw, x, y;
+            y = Double.parseDouble(finalize(format(lastLocation))[5]);
+
+
+            RealignState realignState = RealignState.YAW;
+
+            telemetry.update();
+            boolean isDone = false;
+            // do this until we are good
+            do {
+
+                robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                //TODO find whats wrong with it repeating
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+
+                String[] data = finalize(format(lastLocation));
+                yaw = Double.parseDouble(data[1]);
+                x = Double.parseDouble(data[3]);
+                y = Double.parseDouble(data[5]);
+
+                if (realignState == RealignState.YAW) {                 // fix the yaw by rotating itself till it's good
+                    telemetry.addData("RealignStatus", "Fixing Yaw");
+                    telemetry.addData("Yaw", yaw);
+                    if (fixYaw(yaw)) {
+                        realignState = RealignState.X;
+                    }
+                } else if (realignState == RealignState.X) {            // fix the X by strafing till it's good
+                    telemetry.addData("RealignStatus", "Fixing X");
+                    telemetry.addData("X", x);
+                    realignState = RealignState.Y;
+//                    if (fixX(x)) {
+//                        realignState = RealignState.Y;
+//                    }
+                } else if (realignState == RealignState.Y) {            // fix the Y by simply driving forward
+                    telemetry.addData("RealignStatus", "Fixing Y");
+                    telemetry.addData("Y", y);
+                    if (fixY(y)) {
+                        isDone = true;
+                    }
+                }
+
+                telemetry.update();
+            } while (!isDone && opModeIsActive());
+
+        }
+        stopMotors();
+    }
+
+    private boolean fixYaw(double yaw) {
+        if (yaw < -5) {
+            rotateLeft((int) 100 , (Math.abs(yaw) * proportionalGain));
+            telemetry.addData("Error:" , -(yaw));
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else if (yaw<-2.5 && yaw>-5){
+            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            telemetry.addData("Error:" , yaw);
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else if (yaw > 5){
+            rotateRight((int) 100 , (Math.abs(yaw) * proportionalGain));
+            telemetry.addData("Error:" , yaw);
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else if (yaw>2.5 && yaw<5){
+            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            telemetry.addData("Error:" , yaw);
+            telemetry.addData("Motor", -yaw*proportionalGain);
+            telemetry.update();
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean fixX(double x) {
+        if (x > 0) {
+            strafeLeftFor(1, 0.5);
+        } else if (x < 0) {
+            strafeRightFor(1, 0.5);
+        } else {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean fixY(double y) {
+        if (y > 0.27) {
+            //normalDrive(0, 0.08, 0, -0.08, 10);
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+
+
+
     private void encoderDrive(int leftFront, int leftBack, int rightFront, int rightBack, double power) {
         setMotorRunToPos();
         resetMotors();
 
-        leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
+      //  leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
         leftBackMotor.setTargetPosition((int)(leftBack * COUNTS_PER_INCH));
-        rightFrontMotor.setTargetPosition((int)(rightFront * COUNTS_PER_INCH));
+       // rightFrontMotor.setTargetPosition((int)(rightFront * COUNTS_PER_INCH));
         rightBackMotor.setTargetPosition((int)(rightBack * COUNTS_PER_INCH));
 
-        leftFrontMotor.setPower(power);
+       // leftFrontMotor.setPower(power);
         leftBackMotor.setPower(power);
-        rightFrontMotor.setPower(power);
+      //  rightFrontMotor.setPower(power);
         rightBackMotor.setPower(power);
 
         // hang until they're done
-        while (leftFrontMotor.isBusy() && leftBackMotor.isBusy() && rightBackMotor.isBusy() && rightFrontMotor.isBusy()) {
-            telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
+        while (leftBackMotor.isBusy() && rightBackMotor.isBusy()) { // TODO add in front motors
+            //telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
             telemetry.addData("Left Back: ", leftBackMotor.getCurrentPosition());
-            telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
+            //telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getCurrentPosition());
             telemetry.update();
         }
@@ -436,6 +589,13 @@ public class AutoBlue extends LinearOpMode {
         CENTER,
         LEFT,
         RIGHT,
+        NOTHING
+    }
+
+    enum RealignState {
+        YAW,
+        X,
+        Y,
         NOTHING
     }
 
