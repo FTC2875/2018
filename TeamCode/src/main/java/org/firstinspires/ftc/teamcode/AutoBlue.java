@@ -467,22 +467,22 @@ public class AutoBlue extends LinearOpMode {
 
     private boolean fixYaw(double yaw) {
         if (yaw < -5) {
-            rotateLeft((int) 100 , (Math.abs(yaw) * proportionalGain));
+            rotateLeft((int) 80 , (Math.abs(yaw) * proportionalGain));
             telemetry.addData("Error:" , -(yaw));
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw<-2.5 && yaw>-5){
-            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            rotateRight((int) 60 , (Math.abs(yaw) * proportionalGain *.5));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw > 5){
-            rotateRight((int) 100 , (Math.abs(yaw) * proportionalGain));
+            rotateRight((int) 80 , (Math.abs(yaw) * proportionalGain));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw>2.5 && yaw<5){
-            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            rotateRight((int) 60 , (Math.abs(yaw) * proportionalGain*.5));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
