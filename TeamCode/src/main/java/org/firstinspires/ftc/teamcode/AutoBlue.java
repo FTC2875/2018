@@ -354,7 +354,10 @@ public class AutoBlue extends LinearOpMode {
     }
 
     private void stopMotors() {
-        normalDrive(0, 0, 0, 0);
+        leftBackMotor.setPower(0);
+        leftFrontMotor.setPower(0);
+        rightFrontMotor.setPower(0);
+        rightBackMotor.setPower(0);
     }
 
 
