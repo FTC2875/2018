@@ -36,6 +36,18 @@ public class ChassisTeleop extends LinearOpMode {
     private DcMotor rightbackMotor;
     private DcMotor leftbackMotor;
 
+    private CRServo extender;
+
+    private Servo leftClamp;
+    private Servo rightClamp;
+    private double leftPos = 0;
+    private double rightPos = 0;
+
+    private DcMotor lifter;
+    private int lifterPos;
+    private final int LIFTER_MAX = -14000;
+    private DigitalChannel lifterButton;
+
     private double slowFactor = 1;
     @Override
     public void runOpMode() {
@@ -51,6 +63,14 @@ public class ChassisTeleop extends LinearOpMode {
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
 
+        rightClamp = hardwareMap.servo.get("rightclamp");
+        leftClamp = hardwareMap.servo.get("leftclamp");
+
+        extender = hardwareMap.crservo.get("extender");
+
+        lifter = hardwareMap.dcMotor.get("lifter");
+        lifterButton = hardwareMap.digitalChannel.get("button");
+
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
         leftfrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
@@ -62,6 +82,17 @@ public class ChassisTeleop extends LinearOpMode {
         //running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
 
         // Wait for the game to start (driver presses PLAY)
+
+        leftClamp.setPosition(1);
+        rightClamp.setPosition(0);
+
+        leftPos = leftClamp.getPosition();
+        rightPos = rightClamp.getPosition();
+
+
+        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lifter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
@@ -87,6 +118,39 @@ public class ChassisTeleop extends LinearOpMode {
                 leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
             }
 
+            // open: left = 1
+            // open: right = 0
+            if (gamepad1.x) { // close
+                if (rightPos < 1.0)
+                    rightPos += 0.009;
+
+                if (leftPos > 0.0)
+                    leftPos -= 0.009;
+            } else if (gamepad1.b) { // open
+                if (rightPos > 0.3)
+                    rightPos -= 0.009;
+
+                if (leftPos < .7)
+                    leftPos += 0.009;
+            }
+
+            if (gamepad1.y) {
+                extender.setPower(1);
+            } else if (gamepad1.a) {
+                extender.setPower(-1);
+            } else {
+                extender.setPower(0);
+            }
+
+            if (gamepad1.dpad_down) {
+                lifter.setPower(1);
+            } else if (gamepad1.dpad_up) {
+                if (lifterPos < LIFTER_MAX)
+                    lifter.setPower(-1);
+            } else {
+                lifter.setPower(0);
+            }
+
 
 
             //telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
@@ -94,22 +158,31 @@ public class ChassisTeleop extends LinearOpMode {
 
             //telemetry.addData("Right Position: ", rightClamp.getPower());
 
+
+            rightClamp.setPosition(rightPos);
+            leftClamp.setPosition(leftPos);
+            lifterPos = lifter.getCurrentPosition();
+
+            telemetry.addData("Left Clamp: ", leftPos);
+            telemetry.addData("Right Clamp: ", rightPos);
+            telemetry.addData("Lifter Pos: ", lifterPos);
+
             telemetry.update();
         }
     }
 
     private void strafeRightFor(double power) {
-        leftbackMotor.setPower(power);
-        leftfrontMotor.setPower(-power);
-        rightbackMotor.setPower(-power);
-        rightfrontMotor.setPower(power);
+        leftbackMotor.setPower(power * slowFactor);
+        leftfrontMotor.setPower(-power * slowFactor);
+        rightbackMotor.setPower(-power * slowFactor);
+        rightfrontMotor.setPower(power * slowFactor);
     }
 
     private void strafeLeftFor(double power) {
-        leftbackMotor.setPower(-power);
-        leftfrontMotor.setPower(power);
-        rightbackMotor.setPower(power);
-        rightfrontMotor.setPower(-power);
+        leftbackMotor.setPower(-power * slowFactor);
+        leftfrontMotor.setPower(power * slowFactor);
+        rightbackMotor.setPower(power * slowFactor);
+        rightfrontMotor.setPower(-power * slowFactor);
     }
 
 }

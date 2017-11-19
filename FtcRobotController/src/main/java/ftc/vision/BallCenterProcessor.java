@@ -27,8 +27,8 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
 
     private final String TAG = "Image Processor";
     private boolean detectRed;
-    private Scalar redHsvLower = new Scalar(0, 130, 106);
-    private Scalar redHsvUpper = new Scalar(15, 255, 255);
+    private Scalar redHsvLower = new Scalar(178, 228, 135);
+    private Scalar redHsvUpper = new Scalar(179, 255, 238);
 
     private final Scalar blueHsvLower = new Scalar(98, 117, 59);
     private final Scalar blueHsvUpper = new Scalar(114, 225, 255);

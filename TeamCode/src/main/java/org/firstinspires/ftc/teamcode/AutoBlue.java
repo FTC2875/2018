@@ -118,7 +118,7 @@ public class AutoBlue extends LinearOpMode {
     private Pictographs currentTarget;
     private List<VuforiaTrackable> allTrackables;
 
-    private double proportionalGain = .008;
+    private double proportionalGain = .007;
 
     @Override
     public void runOpMode() {
@@ -467,22 +467,22 @@ public class AutoBlue extends LinearOpMode {
 
     private boolean fixYaw(double yaw) {
         if (yaw < -5) {
-            rotateLeft((int) 100 , (Math.abs(yaw) * proportionalGain));
+            rotateLeft((int) 70 , (Math.abs(yaw) * proportionalGain*.8));
             telemetry.addData("Error:" , -(yaw));
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw<-2.5 && yaw>-5){
-            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            rotateRight((int) Math.abs(yaw)*10 , (Math.abs(yaw) * proportionalGain *.6));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw > 5){
-            rotateRight((int) 100 , (Math.abs(yaw) * proportionalGain));
+            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain*.8));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw>2.5 && yaw<5){
-            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain *.8));
+            rotateRight((int) Math.abs(yaw)*10 , (Math.abs(yaw) * proportionalGain *.6));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
@@ -506,7 +506,7 @@ public class AutoBlue extends LinearOpMode {
 
     private boolean fixY(double y) {
         if (y > 0.27) {
-            //normalDrive(0, 0.08, 0, -0.08, 10);
+            normalDrive(0, 0.08, 0, -0.08, 10);
         } else {
             return true;
         }
