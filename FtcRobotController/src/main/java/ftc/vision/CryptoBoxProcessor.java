@@ -81,7 +81,7 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
                 {
                     boxes.add(myRect);
                 }
-
+ // haaha
             }
 
 
