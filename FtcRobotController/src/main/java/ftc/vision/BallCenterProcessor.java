@@ -27,8 +27,8 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
 
     private final String TAG = "Image Processor";
     private boolean detectRed;
-    private final Scalar redHsvLower = new Scalar(0, 130, 106);
-    private final Scalar redHsvUpper = new Scalar(15, 255, 255);
+    private Scalar redHsvLower = new Scalar(0, 130, 106);
+    private Scalar redHsvUpper = new Scalar(15, 255, 255);
 
     private final Scalar blueHsvLower = new Scalar(98, 117, 59);
     private final Scalar blueHsvUpper = new Scalar(114, 225, 255);
@@ -42,6 +42,7 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
 
     @Override
     public ImageProcessorResult<BallCenterResult> process(long startTime, Mat rgbaFrame, boolean saveImages) {
+        Log.i(TAG, "Starting to image process ball");
         Mat hsv = rgbaFrame.clone();
         Mat hierachy = rgbaFrame.clone();
         Mat thresholdedHSV = rgbaFrame.clone();
@@ -87,6 +88,14 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
 
             return new ImageProcessorResult<>(startTime, thresholdedHSV, new BallCenterResult());
         }
+    }
+
+    public void changeHLower(int value) {
+        redHsvLower = new Scalar(value, 130, 106);
+    }
+
+    public void changeHUpper(int value) {
+        redHsvUpper = new Scalar(15 - value, 255, 255);
     }
 
     private MatOfPoint findLargestContour(List<MatOfPoint> contours) {

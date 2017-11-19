@@ -39,6 +39,9 @@ public class BallCenterResult {
 
     @Override
     public String toString() {
-        return "X: " + xCoord + " Y: " + yCoord;
+        if (foundResult)
+            return "X: " + xCoord + " Y: " + yCoord + "\n Area: " + area;
+        else
+            return "Nothing found";
     }
 }

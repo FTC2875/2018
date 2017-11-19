@@ -166,6 +166,14 @@ public class PictoAuto extends LinearOpMode {
                 String strPos = format(lastLocation);
 
                 String[] values = finalize(strPos);
+                telemetry.addData("Pitch", values[0]);
+                telemetry.addData("Yaw", values[1]);
+                telemetry.addData("Roll", values[2]);
+                telemetry.addData("X", values[3]);
+                telemetry.addData("Z", values[4]);
+                telemetry.addData("Y", values[5]);
+
+
             } else {
                 telemetry.addData("Pos", "Unknown");
             }
