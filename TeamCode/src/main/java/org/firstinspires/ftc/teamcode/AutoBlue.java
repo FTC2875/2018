@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Bitmap;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -40,6 +42,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.vuforia.Image;
+import com.vuforia.PIXEL_FORMAT;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -53,6 +58,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,93 +144,95 @@ public class AutoBlue extends LinearOpMode {
         //                                                //
         //                                                //
         ////////////////////////////////////////////////////
-//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
-//        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
-//        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-//        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-//
-//        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
-//        leftTarget = columnLists.get(2);
-//        leftTarget.setName("leftTarget");  // Left
-//
-//        centerTarget  = columnLists.get(1);
-//        centerTarget.setName("centerTarget");  // Center
-//
-//        rightTarget  = columnLists.get(0);
-//        rightTarget.setName("rightTarget");  // Right
-//
-//
-//        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-//        allTrackables.addAll(columnLists);
-//
-//
-//        float mmPerInch        = 25.4f;
-//        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
-//        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
+        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = new VuforiaLocalizerCustomImpl(parameters);
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+
+        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
+        leftTarget = columnLists.get(2);
+        leftTarget.setName("leftTarget");  // Left
+
+        centerTarget  = columnLists.get(1);
+        centerTarget.setName("centerTarget");  // Center
+
+        rightTarget  = columnLists.get(0);
+        rightTarget.setName("rightTarget");  // Right
 
 
-//        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
-//                /* Then we translate the target off to the RED WALL. Our translation here
-//                is a negative translation in X.*/
-//                .translation( 0, 0, 0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
-//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        leftTarget.setLocation(leftTargetLocationOnField);
-//        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
-//
-//
-//        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
-//                /* Then we translate the target off to the Blue Audience wall.
-//                Our translation here is a positive translation in Y.*/
-//                .translation(0, 0, 0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        centerTarget.setLocation(centerTargetLocationOnField);
-//        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
-//
-//
-//        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
-//                /* Then we translate the target off to the Blue Audience wall.
-//                Our translation here is a positive translation in Y.*/
-//                .translation(0, 0, 0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        rightTarget.setLocation(rightTargetLocationOnField);
-//        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
-//
-//
-//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-//                .translation(0,0,0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        AxesReference.EXTRINSIC, AxesOrder.YZY,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
+        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(columnLists);
 
 
-//        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-//        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-//        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        float mmPerInch        = 25.4f;
+        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
+        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+
+
+        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the RED WALL. Our translation here
+                is a negative translation in X.*/
+                .translation( 0, 0, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        leftTarget.setLocation(leftTargetLocationOnField);
+        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
+
+
+        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the Blue Audience wall.
+                Our translation here is a positive translation in Y.*/
+                .translation(0, 0, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        centerTarget.setLocation(centerTargetLocationOnField);
+        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
+
+
+        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the Blue Audience wall.
+                Our translation here is a positive translation in Y.*/
+                .translation(0, 0, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        rightTarget.setLocation(rightTargetLocationOnField);
+        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
+
+
+        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+                .translation(0,0,0)
+                .multiplied(Orientation.getRotationMatrix(
+                        AxesReference.EXTRINSIC, AxesOrder.YZY,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
+
+
+        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        //columnLists.activate(); TODO: need to disable this for opencv
+        columnLists.activate(); //TODO: need to disable this for opencv
 
         sleep(1000);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            System.out.println("Op Mode Started");
             state.setValue("Jewel Mode");
-            moveToBall();
-
-            while (opModeIsActive()) {
-                telemetry.addData("end", "loop");
-                telemetry.update();
+            try {
+                System.out.println("Starting move to ball");
+                moveToBall();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -241,57 +251,65 @@ public class AutoBlue extends LinearOpMode {
         //TODO: last location thing
     }
 
-    private void moveToBall() {
+    private void moveToBall() throws InterruptedException {
+        BallCenterProcessor processor = new BallCenterProcessor(true);
+
         Telemetry.Item ballStatus = telemetry.addData("Status", "Beginning move ball");
         setMotorNormal();
         double area = 0; // arbitrary definition, area of the ball
-        frame.setImageProcessor(new BallCenterProcessor(true)); // set true for red, false for blue
+        //frame.setImageProcessor(new BallCenterProcessor(true)); // set true for red, false for blue
 
         // threshold values
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 110; // "center" value for the ball
-        int count = 0;
+        System.out.println("Entering ball loop...");
+        vuforia.setFrameQueueCapacity(1);
+
         do {
-            telemetry.addData("In the loop", "description");
-            frame.grabSingleFrame();
-            count++;
+            System.out.println("Entered Loop");
+            VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
+            Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
 
-            while (!frame.isResultReady()) {
-                try {
-                    Thread.sleep(5); //sleep for 5 milliseconds wait for thing to be ready
-                    telemetry.addData("Ball", "Waiting for result: " + count);
-                    telemetry.update();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                sleep(1000);
-            }
+            System.out.println("gonna process");
 
-//            BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
-//
-//            if (result.isFoundResult()) { // make sure something is found
-//                area = result.getArea();
-//                int x = result.getxCoord();
-//                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
-//
-//                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-//                    //strafeRightFor(1, 0.7);
-//                    ballStatus.setValue("Too much left");
-//                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-//                    //strafeLeftFor(1, 0.7);
-//                    ballStatus.setValue("Too much right");
-//                } else {
-//                    //forwardFor(3, 0.7); // GO GO GO
-//                    ballStatus.setValue("Good");
+//            while (!frame.isResultReady()) {
+//                try {
+//                    Thread.sleep(5); //sleep for 5 milliseconds wait for thing to be ready
+//                    telemetry.addData("Ball", "Waiting for result: " + count);
+//                    telemetry.update();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
 //                }
-//
-//
-//                debug.setValue(offset);
-//                telemetry.update();
-//            } else {
-//                ballStatus.setValue("Can't find balls, this is bad");
-//                telemetry.update();
+//                sleep(1000);
 //            }
+
+            BallCenterResult result = processor.process(System.currentTimeMillis(), openCVFrame, false).getResult();
+            telemetry.addData("Status", result.toString());
+            telemetry.update();
+
+            if (result.isFoundResult()) { // make sure something is found
+                area = result.getArea();
+                int x = result.getxCoord();
+                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
+
+                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+                    //strafeRightFor(1, 0.7);
+                    ballStatus.setValue("Too much left");
+                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+                    //strafeLeftFor(1, 0.7);
+                    ballStatus.setValue("Too much right");
+                } else {
+                    //forwardFor(3, 0.7); // GO GO GO
+                    ballStatus.setValue("Good");
+                }
+
+
+                debug.setValue(offset);
+                telemetry.update();
+            } else {
+                ballStatus.setValue("Can't find balls, this is bad");
+                telemetry.update();
+            }
 
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
@@ -366,6 +384,37 @@ public class AutoBlue extends LinearOpMode {
         }
 
         stopMotors();
+    }
+
+    private Mat vuforiaToOpenCV(VuforiaLocalizer.CloseableFrame vuforiaFrame) {
+        System.out.println("Converting vuforia frame to OpenCV frame");
+        long numImages = vuforiaFrame.getNumImages();
+        Image rgb = null;
+
+        System.out.println(vuforiaFrame.getNumImages());
+
+        // apparently all of the frames are greyscale?
+        // set it to BGR using static method in Vuforia class
+        for (int i = 0; i < numImages; i++) {
+            System.out.println("Format: " + vuforiaFrame.getImage(i).getFormat());
+            if (vuforiaFrame.getImage(i).getFormat() == PIXEL_FORMAT.RGB565) {
+                rgb = vuforiaFrame.getImage(i);
+                break;
+            }
+        }
+
+        /*rgb is now the Image object that weve used in the video*/
+        Bitmap bm = Bitmap.createBitmap(rgb.getWidth(), rgb.getHeight(), Bitmap.Config.RGB_565);
+        bm.copyPixelsFromBuffer(rgb.getPixels());
+
+        //put the image into a MAT for OpenCV
+        Mat tmp = new Mat(rgb.getWidth(), rgb.getHeight(), CvType.CV_8UC4);
+        Utils.bitmapToMat(bm, tmp);
+
+        //close the frame, prevents memory leaks and crashing
+        vuforiaFrame.close();
+
+        return tmp;
     }
 
     private String format(OpenGLMatrix transformationMatrix) {

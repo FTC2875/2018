@@ -81,7 +81,13 @@ public class FrameGrabber implements CameraBridgeViewBase.CvCameraViewListener2 
     }
 
     public void grabSingleFrame(){
-        if(isImageProcessorNull()) return;
+        if(isImageProcessorNull()) {
+            System.out.println("image processor is null");
+            return;
+        }
+
+        System.out.println("not null");
+
         mode = FrameGrabberMode.SINGLE;
         resultReady = false;
     }
@@ -159,11 +165,13 @@ public class FrameGrabber implements CameraBridgeViewBase.CvCameraViewListener2 
 
     @Override
     public void onCameraViewStopped() {
-
+        System.out.println("Camera stopped");
     }
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        System.out.println("mode: " + mode.toString());
+
         if(mode == FrameGrabberMode.SINGLE){ //if a single frame was requested
             processFrame(inputFrame); //process it
             stopFrameGrabber(); //and stop grabbing
