@@ -44,11 +44,11 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
         Core.inRange(blur, LOWER_BLUE, UPPER_BLUE, thresh);
         Log.d(TAG, "process: finished thresholding in range");
 
-        Mat struct = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(40, 100));
+        Mat struct = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(20, 20));
         Log.d(TAG, "process: finished getting struct");
         Log.d(TAG, "process: making clone of threshold");
         Mat morphedThresh = thresh.clone();
-        //Imgproc.morphologyEx(thresh, morphedThresh, Imgproc.MORPH_CLOSE, struct);
+        Imgproc.morphologyEx(thresh, morphedThresh, Imgproc.MORPH_CLOSE, struct);
         Log.d(TAG, "process: finished morphing thresh");
 
         Mat uselessH = morphedThresh.clone();
