@@ -30,7 +30,7 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
     private final Scalar LOWER_BLUE = new Scalar(90, 135, 25);
     private final Scalar UPPER_BLUE = new Scalar(130, 250, 150);
 
-    Rect myRect = new Rect();
+    private Rect myRect = new Rect();
 
     private ArrayList<Rect> boxes;
 

@@ -65,6 +65,13 @@ public class OpenCVTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private FrameGrabber frame = FtcRobotControllerActivity.frameGrabber;
 
+    private int h = 0;
+    private int s = 226;
+    private int v = 85;
+    private boolean add = true;
+    private int addAmt = 1;
+    private int hUpper = 179;
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -99,8 +106,65 @@ public class OpenCVTest extends LinearOpMode {
                 upperCount = 0;
             }
 
-            processor.changeHLower(lowerCount);
-            processor.changeHUpper(upperCount);
+//            processor.changeHLower(lowerCount);
+//            processor.changeHUpper(upperCount);
+
+            if (gamepad1.x) {
+                if (add)
+                    h += addAmt;
+                else
+                    h -= addAmt;
+            }
+
+            if (gamepad1.y) {
+                if (add)
+                    s += addAmt;
+                else
+                    s -= addAmt;
+            }
+
+            if (gamepad1.b) {
+//                if (add)
+//                    v += addAmt;
+//                else
+//                    v -= addAmt;
+                if (add)
+                    hUpper += addAmt;
+                else
+                    v -= addAmt;
+            }
+
+            if (gamepad1.a) {
+                add = !add;
+            }
+
+            if (gamepad1.left_bumper) {
+                addAmt = 1;
+            }
+
+            if (gamepad1.right_bumper) {
+                addAmt = 50;
+            }
+
+            if (gamepad1.dpad_up) {
+                h+= addAmt;
+            }
+
+            if (gamepad1.dpad_down) {
+                h-= addAmt;
+            }
+
+            if (gamepad1.dpad_left) {
+                hUpper -= addAmt;
+            }
+
+            if (gamepad1.dpad_right) {
+                hUpper += addAmt;
+            }
+
+            //processor.changeRedLower(h, s, v);
+            processor.changeSLower(h);
+            processor.changeSUpper(hUpper);
 
             frame.grabSingleFrame();
 
@@ -122,6 +186,9 @@ public class OpenCVTest extends LinearOpMode {
                 telemetry.addData("Status", "No contours found");
             }
             telemetry.addData("Count: ", lowerCount);
+//            telemetry.addData("HSV: ", "(" + h + "," + s + "," + v + ")");
+            telemetry.addData("H: ", "(" + h + "," + hUpper + ")");
+            telemetry.addData("ADD: ", add);
             telemetry.update();
 
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)

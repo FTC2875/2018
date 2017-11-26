@@ -27,11 +27,13 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
 
     private final String TAG = "Image Processor";
     private boolean detectRed;
-    private Scalar redHsvLower = new Scalar(178, 228, 135);
-    private Scalar redHsvUpper = new Scalar(179, 255, 238);
 
-    private final Scalar blueHsvLower = new Scalar(98, 117, 59);
-    private final Scalar blueHsvUpper = new Scalar(114, 225, 255);
+    // lower bounds has the upper value because HSV cylinder
+    private Scalar redHsvLower = new Scalar(174, 222, 0);
+    private Scalar redHsvUpper = new Scalar(5, 255, 255);
+
+    private final Scalar blueHsvLower = new Scalar(99, 0, 0);
+    private final Scalar blueHsvUpper = new Scalar(113, 255, 255);
 
 //    private final Scalar blueHsvLower = new Scalar(0, 0, 0);
 //    private final Scalar blueHsvUpper = new Scalar(179, 255, 255);
@@ -66,8 +68,12 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
             ImageUtil.hsvInRange(hsv, redHsvLower, redHsvUpper, thresholdedHSV);
         }
 
+        Log.d(TAG, "HSV: " + hsv.toString());
+
         Imgproc.findContours(thresholdedHSV, contours, hierachy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        Imgproc.drawContours(thresholdedHSV, contours, -1, new Scalar(100, 100, 255));
+        Mat matOnlyContours = new Mat(thresholdedHSV.size(), thresholdedHSV.type());
+
+        Imgproc.drawContours(matOnlyContours, contours, -1, new Scalar(100, 100, 255));
         if (contours.size() > 0) {
             Log.i(TAG, "Found at least one contour: " + contours.size());
             MatOfPoint largestContour = findLargestContour(contours);
@@ -90,13 +96,19 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
         }
     }
 
-    public void changeHLower(int value) {
-        redHsvLower = new Scalar(value, 130, 106);
+    public void changeSLower(int value) {
+        redHsvLower = new Scalar(174, 222, value);
     }
 
-    public void changeHUpper(int value) {
-        redHsvUpper = new Scalar(15 - value, 255, 255);
+    public void changeRedLower(int h, int s, int v) {
+        redHsvLower = new Scalar(h, s ,v);
     }
+
+    public void changeSUpper(int value) {
+        redHsvUpper = new Scalar(5, 255, value);
+    }
+
+
 
     private MatOfPoint findLargestContour(List<MatOfPoint> contours) {
         MatOfPoint largest = contours.get(0);
