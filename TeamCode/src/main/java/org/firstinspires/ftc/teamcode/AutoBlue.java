@@ -355,8 +355,8 @@ public class AutoBlue extends LinearOpMode {
 
     private void stopMotors() {
         leftBackMotor.setPower(0);
-        leftFrontMotor.setPower(0);
-        rightFrontMotor.setPower(0);
+        //leftFrontMotor.setPower(0);
+        //rightFrontMotor.setPower(0);
         rightBackMotor.setPower(0);
     }
 
@@ -467,22 +467,22 @@ public class AutoBlue extends LinearOpMode {
 
     private boolean fixYaw(double yaw) {
         if (yaw < -5) {
-            rotateLeft((int) 70 , (Math.abs(yaw) * proportionalGain*.8));
+            rotateLeft( 60 , (Math.abs(yaw) * proportionalGain*.8));
             telemetry.addData("Error:" , -(yaw));
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw<-2.5 && yaw>-5){
-            rotateRight((int) Math.abs(yaw)*10 , (Math.abs(yaw) * proportionalGain *.6));
+            rotateRight((int) Math.abs(yaw)*8 , (Math.abs(yaw) * proportionalGain *.6));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw > 5){
-            rotateRight((int) 70 , (Math.abs(yaw) * proportionalGain*.8));
+            rotateRight( 60 , (Math.abs(yaw) * proportionalGain*.8));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
         } else if (yaw>2.5 && yaw<5){
-            rotateRight((int) Math.abs(yaw)*10 , (Math.abs(yaw) * proportionalGain *.6));
+            rotateRight((int) Math.abs(yaw)*8 , (Math.abs(yaw) * proportionalGain *.6));
             telemetry.addData("Error:" , yaw);
             telemetry.addData("Motor", -yaw*proportionalGain);
             telemetry.update();
