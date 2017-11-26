@@ -127,9 +127,9 @@ public class AutoBlue extends LinearOpMode {
 
         // initialize motors
         leftBackMotor = hardwareMap.dcMotor.get("leftback");
-        //leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
+        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
         rightBackMotor = hardwareMap.dcMotor.get("rightback");
-        //rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
+        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -230,12 +230,55 @@ public class AutoBlue extends LinearOpMode {
         while (opModeIsActive()) {
 //            state.setValue("Jewel Mode");
 //            moveToBall();
+
+            //FOR ENCODERS, INCHES ARE TICKS... STILL NEED TO CONVERT TICKS TO INCHES
+            /*
+            // Autonomous 1
+            forwardFor(4,.8);
+            Pictographs pic = detectPictograph();
+            currentTarget = pic;
+            telemetry.addData("Pic", pic);
+            telemetry.update();
+            forwardFor(-7, .8);
+            strafeLeftFor(12, 90 );
+            rotateLeft(80, .8);
+            */
+            /*
+            //Autonomous 2
+            forwardFor(4,.8);
+            Pictographs pic = detectPictograph();
+            currentTarget = pic;
+            telemetry.addData("Pic", pic);                //realignWithPicto();
+            telemetry.update();
+            forwardFor(-4, .8);
+            strafeLeftFor(18, 100 );
+            */
+            /*
+            //Autonomous 3
+            forwardFor(4,.8);
+            Pictographs pic = detectPictograph();
+            currentTarget = pic;
+            telemetry.addData("Pic", pic);
+            telemetry.update();
+            forwardFor(-7, .8);
+            strafeRightFor(12,90);
+            rotateRight(80, .8);
+            */
+
+            //Autonomous 4
+            forwardFor(4000,.8);
             Pictographs pic = detectPictograph();
             currentTarget = pic;
             telemetry.addData("Pic", pic);
             telemetry.update();
 
-            realignWithPicto();
+            forwardFor(-40000,.8);
+              telemetry.addLine("Forward done");
+            strafeRightFor(18,.8);
+               telemetry.addLine("Strafe done");
+
+
+
         }
     }
 
@@ -318,31 +361,31 @@ public class AutoBlue extends LinearOpMode {
     }
 
     private void setMotorNormal() {
-        //leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     private void setMotorRunToPos() {
-        //leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     private void resetMotors() {
-       // leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-       // rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     private void normalDrive(double leftFront, double leftBack, double rightFront, double rightBack, long time) {
         setMotorNormal();
-      //  leftFrontMotor.setPower(leftFront);
+        leftFrontMotor.setPower(leftFront);
         leftBackMotor.setPower(leftBack);
-       // rightFrontMotor.setPower(rightFront);
+        rightFrontMotor.setPower(rightFront);
         rightBackMotor.setPower(rightBack);
 
         try {
@@ -355,8 +398,8 @@ public class AutoBlue extends LinearOpMode {
 
     private void stopMotors() {
         leftBackMotor.setPower(0);
-        //leftFrontMotor.setPower(0);
-        //rightFrontMotor.setPower(0);
+        leftFrontMotor.setPower(0);
+        rightFrontMotor.setPower(0);
         rightBackMotor.setPower(0);
     }
 
@@ -375,9 +418,10 @@ public class AutoBlue extends LinearOpMode {
 
     private void rotateRight(int time, double speed) {
         setMotorNormal();
-
+        leftFrontMotor.setPower(speed);
         leftBackMotor.setPower(speed);
-        rightBackMotor.setPower(speed);
+        rightBackMotor.setPower(-speed);
+        rightFrontMotor.setPower(-speed);
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
@@ -389,7 +433,9 @@ public class AutoBlue extends LinearOpMode {
     private void rotateLeft(int time, double speed) {
         setMotorNormal();
         leftBackMotor.setPower(-speed);
-        rightBackMotor.setPower(-speed);
+        leftFrontMotor.setPower(-speed);
+        rightBackMotor.setPower(speed);
+        rightFrontMotor.setPower(speed);
 
         try {
             Thread.sleep(time);
@@ -517,25 +563,28 @@ public class AutoBlue extends LinearOpMode {
 
 
     private void encoderDrive(int leftFront, int leftBack, int rightFront, int rightBack, double power) {
-        setMotorRunToPos();
         resetMotors();
+        setMotorRunToPos();
 
-      //  leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
+
+        leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
         leftBackMotor.setTargetPosition((int)(leftBack * COUNTS_PER_INCH));
-       // rightFrontMotor.setTargetPosition((int)(rightFront * COUNTS_PER_INCH));
+        rightFrontMotor.setTargetPosition((int)(rightFront * COUNTS_PER_INCH));
         rightBackMotor.setTargetPosition((int)(rightBack * COUNTS_PER_INCH));
 
-       // leftFrontMotor.setPower(power);
+        leftFrontMotor.setPower(power);
         leftBackMotor.setPower(power);
-      //  rightFrontMotor.setPower(power);
+        rightFrontMotor.setPower(power);
         rightBackMotor.setPower(power);
 
         // hang until they're done
-        while (leftBackMotor.isBusy() && rightBackMotor.isBusy()) { // TODO add in front motors
-            //telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
+        while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy()) { // TODO add in front motors
+            telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
+            telemetry.addData("Left Front: ", leftFrontMotor.getTargetPosition());
             telemetry.addData("Left Back: ", leftBackMotor.getCurrentPosition());
-            //telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
+            telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getCurrentPosition());
+            telemetry.addData("Right Back: ", rightBackMotor.getTargetPosition());
             telemetry.update();
         }
 
