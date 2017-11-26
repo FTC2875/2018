@@ -576,7 +576,7 @@ public class AutoBlue extends LinearOpMode {
         leftBackMotor.setPower(power);
         rightFrontMotor.setPower(power);
         rightBackMotor.setPower(power);
-
+        //lol
         // hang until they're done
         while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy()) { // TODO add in front motors
             telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
