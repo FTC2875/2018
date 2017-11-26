@@ -5,4 +5,19 @@ package ftc.vision;
  */
 
 public class CryptoBoxResult {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
