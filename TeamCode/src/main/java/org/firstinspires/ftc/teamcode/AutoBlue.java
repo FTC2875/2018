@@ -126,10 +126,10 @@ public class AutoBlue extends LinearOpMode {
         telemetry.update();
 
         // initialize motors
-        leftBackMotor = hardwareMap.dcMotor.get("leftback");
-        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
-        rightBackMotor = hardwareMap.dcMotor.get("rightback");
-        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
+//        leftBackMotor = hardwareMap.dcMotor.get("leftback");
+//        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
+//        rightBackMotor = hardwareMap.dcMotor.get("rightback");
+//        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -265,6 +265,7 @@ public class AutoBlue extends LinearOpMode {
             rotateRight(80, .8);
             */
 
+            /*
             //Autonomous 4
             forwardFor(4000,.8);
             Pictographs pic = detectPictograph();
@@ -276,6 +277,9 @@ public class AutoBlue extends LinearOpMode {
               telemetry.addLine("Forward done");
             strafeRightFor(18,.8);
                telemetry.addLine("Strafe done");
+
+            */
+            realignWithPicto();
 
 
 
@@ -482,7 +486,10 @@ public class AutoBlue extends LinearOpMode {
                 yaw = Double.parseDouble(data[1]);
                 x = Double.parseDouble(data[3]);
                 y = Double.parseDouble(data[5]);
-
+                telemetry.addData("Yaw", yaw);
+                telemetry.addData("X", x);
+                telemetry.addData("Y", y);
+                /*
                 if (realignState == RealignState.YAW) {                 // fix the yaw by rotating itself till it's good
                     telemetry.addData("RealignStatus", "Fixing Yaw");
                     telemetry.addData("Yaw", yaw);
@@ -502,13 +509,13 @@ public class AutoBlue extends LinearOpMode {
                     if (fixY(y)) {
                         isDone = true;
                     }
-                }
+                }*/
 
                 telemetry.update();
             } while (!isDone && opModeIsActive());
 
         }
-        stopMotors();
+        stopMotors();{
     }
 
     private boolean fixYaw(double yaw) {

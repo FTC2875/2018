@@ -17,6 +17,7 @@ import org.opencv.imgproc.Moments;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
     private Rect myRect = new Rect();
 
     private ArrayList<Rect> boxes;
+    private ArrayList<Rect> arrangedBoxes;
 
     @Override
     public ImageProcessorResult<CryptoBoxResult> process(long startTime, Mat rgbaFrame, boolean saveImages) {
@@ -54,7 +56,7 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
         Core.inRange(blur, LOWER_BLUE, UPPER_BLUE, thresh);
         Log.d(TAG, "process: finished thresholding in range");
 
-        Mat struct = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 10));
+        Mat struct = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 30));
         Log.d(TAG, "process: finished getting struct");
         Log.d(TAG, "process: making clone of threshold");
         Mat morphedThresh = thresh.clone();
@@ -67,9 +69,10 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
         Log.d(TAG, "process: finished finding contours");
 
 
+        boxes = new ArrayList<>();
 
 
-        for (int i =0; i<= contours.size(); i++)
+        for (int i =0; i< contours.size(); i++)
         {
             if (Imgproc.contourArea(contours.get(i)) >= 100)
             {
@@ -84,9 +87,38 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
  // haaha
             }
 
-
         }
+        arrangedBoxes = new ArrayList<>();
 
+            int n = boxes.size();
+
+            // One by one move boundary of unsorted subarray
+            for (int i = 0; i < n-1; i++)
+            {
+                // Find the minimum element in unsorted array
+                int min_idx = i;
+                for (int j = i+1; j < n; j++)
+                    if (boxes.get(j).x < boxes.get(min_idx).x)
+                        min_idx = j;
+
+                // Swap the found minimum element with the first
+                // element
+
+                Rect tbox = boxes.get(min_idx);
+                boxes.set(min_idx, boxes.get(i));
+                boxes.set(i, tbox);
+
+
+            }
+
+
+
+
+        for (int a = 0; a < boxes.size(); a++)
+        {
+            Rect currentBox = boxes.get(a);
+            Imgproc.rectangle(rgbaFrame, new Point(currentBox.x , currentBox.y), new Point(currentBox.x + currentBox.width, currentBox.y + currentBox.height), new Scalar(255,0,0));
+        }
         // release to free up memory
         hsv.release();
         erode.release();
@@ -95,10 +127,16 @@ public class CryptoBoxProcessor implements ImageProcessor<CryptoBoxResult>{
         struct.release();
         Log.d(TAG, "process: finished freeing up memory");
 
-        return new ImageProcessorResult<>(startTime, morphedThresh, new CryptoBoxResult());
+        return new ImageProcessorResult<>(startTime, rgbaFrame,  new CryptoBoxResult(boxes.size(), boxes.get(0).x, boxes.get(1).x, boxes.get(2).x));
+
+
     }
 
 
 
 
-}
+    }
+
+
+
+
