@@ -69,7 +69,7 @@ public class ChassisTeleop extends LinearOpMode {
         extender = hardwareMap.crservo.get("extender");
 
         lifter = hardwareMap.dcMotor.get("lifter");
-        lifterButton = hardwareMap.digitalChannel.get("button");
+        // lifterButton = hardwareMap.digitalChannel.get("button");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -145,8 +145,8 @@ public class ChassisTeleop extends LinearOpMode {
             if (gamepad1.dpad_down) {
                 lifter.setPower(1);
             } else if (gamepad1.dpad_up) {
-                if (lifterPos < LIFTER_MAX)
-                    lifter.setPower(-1);
+                //if (lifterPos < LIFTER_MAX)
+                lifter.setPower(-1);
             } else {
                 lifter.setPower(0);
             }

@@ -67,6 +67,7 @@ import java.util.List;
 
 import ftc.vision.BallCenterProcessor;
 import ftc.vision.BallCenterResult;
+import ftc.vision.BallColor;
 import ftc.vision.FrameGrabber;
 
 /**
@@ -126,10 +127,10 @@ public class AutoBlue extends LinearOpMode {
         telemetry.update();
 
         // initialize motors
-//        leftBackMotor = hardwareMap.dcMotor.get("leftback");
-//        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
-//        rightBackMotor = hardwareMap.dcMotor.get("rightback");
-//        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
+        leftBackMotor = hardwareMap.dcMotor.get("leftback");
+        leftFrontMotor = hardwareMap.dcMotor.get("leftfront");
+        rightBackMotor = hardwareMap.dcMotor.get("rightback");
+        rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -265,23 +266,27 @@ public class AutoBlue extends LinearOpMode {
             rotateRight(80, .8);
             */
 
-            /*
             //Autonomous 4
-            forwardFor(4000,.8);
-            Pictographs pic = detectPictograph();
-            currentTarget = pic;
-            telemetry.addData("Pic", pic);
+//            forwardFor(4000,.8);
+//            Pictographs pic = detectPictograph();
+//            currentTarget = pic;
+//            telemetry.addData("Pic", pic);
+//            telemetry.update();
+//
+//            forwardFor(-40000,.8);
+//              telemetry.addLine("Forward done");
+//            strafeRightFor(18,.8);
+//               telemetry.addLine("Strafe done");
+
+            currentTarget = detectPictograph();
+            try {
+                moveToBall();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            telemetry.addData("Picto: ", currentTarget);
             telemetry.update();
-
-            forwardFor(-40000,.8);
-              telemetry.addLine("Forward done");
-            strafeRightFor(18,.8);
-               telemetry.addLine("Strafe done");
-
-            */
-            realignWithPicto();
-
-
 
         }
     }
@@ -337,29 +342,41 @@ public class AutoBlue extends LinearOpMode {
             telemetry.addData("Status", result.toString());
             telemetry.update();
 
-            if (result.isFoundResult()) { // make sure something is found
-                area = result.getArea();
-                int x = result.getxCoord();
-                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
-
-                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-                    //strafeRightFor(1, 0.7);
-                    ballStatus.setValue("Too much left");
-                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-                    //strafeLeftFor(1, 0.7);
-                    ballStatus.setValue("Too much right");
-                } else {
-                    //forwardFor(3, 0.7); // GO GO GO
-                    ballStatus.setValue("Good");
+            if (result.isFoundResult()) {
+                if (result.getLeftJewel().getColor() == BallColor.BLUE) { // left: blue     right: red
+                    telemetry.addData("Left: ", "blue");
+                    telemetry.addData("Right: ", "red");
+                    telemetry.update();
+                } else {                                                  // left: red      right: blue
+                    telemetry.addData("Left: ", "red");
+                    telemetry.addData("Right: ", "blue");
+                    telemetry.update();
                 }
-
-                debug.setValue(offset);
-                telemetry.update();
-
-            } else {
-                ballStatus.setValue("Can't find balls, this is bad");
-                telemetry.update();
             }
+//
+////            if (result.isFoundResult()) { // make sure something is found
+////               // area = result.getArea();
+////                ///int x = result.getxCoord();
+////                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
+////
+////                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+////                    //strafeRightFor(1, 0.7);
+////                    ballStatus.setValue("Too much left");
+////                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+////                    //strafeLeftFor(1, 0.7);
+////                    ballStatus.setValue("Too much right");
+////                } else {
+////                    //forwardFor(3, 0.7); // GO GO GO
+////                    ballStatus.setValue("Good");
+////                }
+//
+//                debug.setValue(offset);
+//                telemetry.update();
+//
+//            } else {
+//                ballStatus.setValue("Can't find balls, this is bad");
+//                telemetry.update();
+//            }
 
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
@@ -486,10 +503,7 @@ public class AutoBlue extends LinearOpMode {
                 yaw = Double.parseDouble(data[1]);
                 x = Double.parseDouble(data[3]);
                 y = Double.parseDouble(data[5]);
-                telemetry.addData("Yaw", yaw);
-                telemetry.addData("X", x);
-                telemetry.addData("Y", y);
-                /*
+
                 if (realignState == RealignState.YAW) {                 // fix the yaw by rotating itself till it's good
                     telemetry.addData("RealignStatus", "Fixing Yaw");
                     telemetry.addData("Yaw", yaw);
@@ -509,13 +523,13 @@ public class AutoBlue extends LinearOpMode {
                     if (fixY(y)) {
                         isDone = true;
                     }
-                }*/
+                }
 
                 telemetry.update();
             } while (!isDone && opModeIsActive());
 
         }
-        stopMotors();{
+        stopMotors();
     }
 
     private boolean fixYaw(double yaw) {
@@ -592,6 +606,7 @@ public class AutoBlue extends LinearOpMode {
             telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getTargetPosition());
+            telemetry.addData("Im in the encoder loop", "yes");
             telemetry.update();
         }
 

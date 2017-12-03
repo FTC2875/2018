@@ -5,42 +5,57 @@ package ftc.vision;
  */
 
 public class BallCenterResult {
-    private int xCoord;
-    private int yCoord;
+    private Jewel leftJewel;
+    private Jewel rightJewel;
     private boolean foundResult;
-    private double area;
 
-    public BallCenterResult(int xCoord, int yCoord, double area) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
+    private final int BLUE_CENTER_X = 300;
+
+    public BallCenterResult(Jewel redJewel, Jewel blueJewel) {
         this.foundResult = true;
-        this.area = area;
+
+        // TODO get rid of this
+        if (redJewel.getCenterX() < blueJewel.getCenterX()) {
+            leftJewel = redJewel;
+            rightJewel = blueJewel;
+        } else {
+            leftJewel = blueJewel;
+            rightJewel = redJewel;
+        }
+
+        // todo replace with this
+//        if (blueJewel.getCenterX() < BLUE_CENTER_X) {
+//            leftJewel = blueJewel;
+//            rightJewel = redJewel;
+//        } else {
+//            leftJewel = redJewel;
+//            rightJewel = blueJewel;
+//        }
+
+    }
+
+    public Jewel getLeftJewel() {
+        return leftJewel;
+    }
+
+    public Jewel getRightJewel() {
+        return rightJewel;
     }
 
     public BallCenterResult() {
         this.foundResult = false;
     }
 
-    public int getxCoord() {
-        return xCoord;
-    }
-
-    public int getyCoord() {
-        return yCoord;
-    }
 
     public boolean isFoundResult() {
         return foundResult;
     }
 
-    public double getArea() {
-        return area;
-    }
 
     @Override
     public String toString() {
         if (foundResult)
-            return "X: " + xCoord + " Y: " + yCoord + "\n Area: " + area;
+            return "Found";
         else
             return "Nothing found";
     }
