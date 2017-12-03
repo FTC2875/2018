@@ -67,6 +67,7 @@ import java.util.List;
 
 import ftc.vision.BallCenterProcessor;
 import ftc.vision.BallCenterResult;
+import ftc.vision.BallColor;
 import ftc.vision.FrameGrabber;
 
 /**
@@ -266,18 +267,26 @@ public class AutoBlue extends LinearOpMode {
             */
 
             //Autonomous 4
-            forwardFor(4000,.8);
-            Pictographs pic = detectPictograph();
-            currentTarget = pic;
-            telemetry.addData("Pic", pic);
+//            forwardFor(4000,.8);
+//            Pictographs pic = detectPictograph();
+//            currentTarget = pic;
+//            telemetry.addData("Pic", pic);
+//            telemetry.update();
+//
+//            forwardFor(-40000,.8);
+//              telemetry.addLine("Forward done");
+//            strafeRightFor(18,.8);
+//               telemetry.addLine("Strafe done");
+
+            currentTarget = detectPictograph();
+            try {
+                moveToBall();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            telemetry.addData("Picto: ", currentTarget);
             telemetry.update();
-
-            forwardFor(-40000,.8);
-              telemetry.addLine("Forward done");
-            strafeRightFor(18,.8);
-               telemetry.addLine("Strafe done");
-
-
 
         }
     }
@@ -333,29 +342,41 @@ public class AutoBlue extends LinearOpMode {
             telemetry.addData("Status", result.toString());
             telemetry.update();
 
-            if (result.isFoundResult()) { // make sure something is found
-                area = result.getArea();
-                int x = result.getxCoord();
-                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
-
-                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-                    //strafeRightFor(1, 0.7);
-                    ballStatus.setValue("Too much left");
-                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-                    //strafeLeftFor(1, 0.7);
-                    ballStatus.setValue("Too much right");
-                } else {
-                    //forwardFor(3, 0.7); // GO GO GO
-                    ballStatus.setValue("Good");
+            if (result.isFoundResult()) {
+                if (result.getLeftJewel().getColor() == BallColor.BLUE) { // left: blue     right: red
+                    telemetry.addData("Left: ", "blue");
+                    telemetry.addData("Right: ", "red");
+                    telemetry.update();
+                } else {                                                  // left: red      right: blue
+                    telemetry.addData("Left: ", "red");
+                    telemetry.addData("Right: ", "blue");
+                    telemetry.update();
                 }
-
-                debug.setValue(offset);
-                telemetry.update();
-
-            } else {
-                ballStatus.setValue("Can't find balls, this is bad");
-                telemetry.update();
             }
+//
+////            if (result.isFoundResult()) { // make sure something is found
+////               // area = result.getArea();
+////                ///int x = result.getxCoord();
+////                int offset = CENTER_POSITION - x; // "error" amount; negative = too left, positive = too right
+////
+////                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+////                    //strafeRightFor(1, 0.7);
+////                    ballStatus.setValue("Too much left");
+////                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+////                    //strafeLeftFor(1, 0.7);
+////                    ballStatus.setValue("Too much right");
+////                } else {
+////                    //forwardFor(3, 0.7); // GO GO GO
+////                    ballStatus.setValue("Good");
+////                }
+//
+//                debug.setValue(offset);
+//                telemetry.update();
+//
+//            } else {
+//                ballStatus.setValue("Can't find balls, this is bad");
+//                telemetry.update();
+//            }
 
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
@@ -585,6 +606,7 @@ public class AutoBlue extends LinearOpMode {
             telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getCurrentPosition());
             telemetry.addData("Right Back: ", rightBackMotor.getTargetPosition());
+            telemetry.addData("Im in the encoder loop", "yes");
             telemetry.update();
         }
 

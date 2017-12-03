@@ -162,7 +162,7 @@ public class OpenCVTest extends LinearOpMode {
                 hUpper += addAmt;
             }
 
-            //processor.changeRedLower(h, s, v);
+//            //processor.changeRedLower(h, s, v);
             processor.changeSLower(h);
             processor.changeSUpper(hUpper);
 
@@ -179,9 +179,12 @@ public class OpenCVTest extends LinearOpMode {
             BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
 
             if (result.isFoundResult()) { // check if found anything
-                telemetry.addData("Status", "X " + result.getxCoord());
-                telemetry.addData("Status", "Y " + result.getyCoord());
-                telemetry.addData("Area", result.getArea());
+//                telemetry.addData("Status", "X " + result.getxCoord());
+//                telemetry.addData("Status", "Y " + result.getyCoord());
+//                telemetry.addData("Area", result.getArea());
+
+                telemetry.addData("Right Jewel: ", result.getRightJewel());
+                telemetry.addData("Left Jewel: ", result.getLeftJewel());
             } else {
                 telemetry.addData("Status", "No contours found");
             }
