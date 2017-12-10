@@ -9,10 +9,16 @@ public class BallCenterResult {
     private Jewel rightJewel;
     private boolean foundResult;
 
+    private Jewel blue;
+    private Jewel red;
+
+    // todo find a better way to do this
     private final int BLUE_CENTER_X = 390;
 
     public BallCenterResult(Jewel redJewel, Jewel blueJewel) {
         this.foundResult = true;
+        red = redJewel;
+        blue = blueJewel;
 
         if (blueJewel.getCenterX() < BLUE_CENTER_X) {
             leftJewel = blueJewel;
@@ -22,10 +28,18 @@ public class BallCenterResult {
             rightJewel = blueJewel;
         }
 
-        // debug
+//        // debug
 //        leftJewel = blueJewel;
 //        rightJewel = redJewel;
 
+    }
+
+    public Jewel getBlue() {
+        return blue;
+    }
+
+    public Jewel getRed() {
+        return red;
     }
 
     public Jewel getLeftJewel() {

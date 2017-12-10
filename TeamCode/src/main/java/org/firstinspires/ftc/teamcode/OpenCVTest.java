@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -40,6 +42,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 import ftc.vision.BallCenterProcessor;
 import ftc.vision.BallCenterResult;
@@ -72,10 +77,14 @@ public class OpenCVTest extends LinearOpMode {
     private int addAmt = 1;
     private int hUpper = 179;
 
+    private BNO055IMU imu;
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+
 
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
@@ -95,76 +104,86 @@ public class OpenCVTest extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
         // run until the end of the match (driver presses STOP)
         int lowerCount = 0;
         int upperCount = 0;
         while (opModeIsActive()) {
-
-            if (gamepad1.a) {
-                lowerCount++;
-            } else if (gamepad1.y) {
-                upperCount = 0;
-            }
-
-//            processor.changeHLower(lowerCount);
-//            processor.changeHUpper(upperCount);
-
-            if (gamepad1.x) {
-                if (add)
-                    h += addAmt;
-                else
-                    h -= addAmt;
-            }
-
-            if (gamepad1.y) {
-                if (add)
-                    s += addAmt;
-                else
-                    s -= addAmt;
-            }
-
-            if (gamepad1.b) {
+//
+//            if (gamepad1.a) {
+//                lowerCount++;
+//            } else if (gamepad1.y) {
+//                upperCount = 0;
+//            }
+//
+////            processor.changeHLower(lowerCount);
+////            processor.changeHUpper(upperCount);
+//
+//            if (gamepad1.x) {
 //                if (add)
-//                    v += addAmt;
+//                    h += addAmt;
+//                else
+//                    h -= addAmt;
+//            }
+//
+//            if (gamepad1.y) {
+//                if (add)
+//                    s += addAmt;
+//                else
+//                    s -= addAmt;
+//            }
+//
+//            if (gamepad1.b) {
+////                if (add)
+////                    v += addAmt;
+////                else
+////                    v -= addAmt;
+//                if (add)
+//                    hUpper += addAmt;
 //                else
 //                    v -= addAmt;
-                if (add)
-                    hUpper += addAmt;
-                else
-                    v -= addAmt;
-            }
-
-            if (gamepad1.a) {
-                add = !add;
-            }
-
-            if (gamepad1.left_bumper) {
-                addAmt = 1;
-            }
-
-            if (gamepad1.right_bumper) {
-                addAmt = 50;
-            }
-
-            if (gamepad1.dpad_up) {
-                h+= addAmt;
-            }
-
-            if (gamepad1.dpad_down) {
-                h-= addAmt;
-            }
-
-            if (gamepad1.dpad_left) {
-                hUpper -= addAmt;
-            }
-
-            if (gamepad1.dpad_right) {
-                hUpper += addAmt;
-            }
-
-//            //processor.changeRedLower(h, s, v);
-//            processor.changeSLower(h);
-//            processor.changeSUpper(hUpper);
+//            }
+//
+//            if (gamepad1.a) {
+//                add = !add;
+//            }
+//
+//            if (gamepad1.left_bumper) {
+//                addAmt = 1;
+//            }
+//
+//            if (gamepad1.right_bumper) {
+//                addAmt = 50;
+//            }
+//
+//            if (gamepad1.dpad_up) {
+//                h+= addAmt;
+//            }
+//
+//            if (gamepad1.dpad_down) {
+//                h-= addAmt;
+//            }
+//
+//            if (gamepad1.dpad_left) {
+//                hUpper -= addAmt;
+//            }
+//
+//            if (gamepad1.dpad_right) {
+//                hUpper += addAmt;
+//            }
+//
+////            //processor.changeRedLower(h, s, v);
+////            processor.changeSLower(h);
+////            processor.changeSUpper(hUpper);
 
             frame.grabSingleFrame();
 
@@ -190,6 +209,8 @@ public class OpenCVTest extends LinearOpMode {
             }
             telemetry.addData("Right: ", result.getRightJewel().getCenterX());
             telemetry.addData("Left: ", result.getLeftJewel().getCenterX());
+          //  imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
+
             telemetry.update();
 
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)

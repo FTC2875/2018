@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.media.MediaPlayer;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -13,6 +15,11 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
@@ -47,6 +54,11 @@ public class ChassisTeleop extends LinearOpMode {
     private int lifterPos;
     private final int LIFTER_MAX = -10500; //-10916
     private DigitalChannel lifterButton;
+
+    private BNO055IMU imu;
+    private boolean firstStrafe  = true;
+    private float firstStrafeHeading;
+    private final float strafeKP = 0.05f;
 
     private double slowFactor = 1;
     @Override
@@ -100,8 +112,18 @@ public class ChassisTeleop extends LinearOpMode {
 
         MediaPlayer error = MediaPlayer.create(hardwareMap.appContext, R.raw.errormessage);
         MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
-        MediaPlayer running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
         MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
+
+        // rev imu stuff
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
 
 
         waitForStart();
@@ -109,7 +131,7 @@ public class ChassisTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
             if (gamepad1.left_bumper) {
                 slowFactor = 0.35;
             } else {
@@ -122,19 +144,25 @@ public class ChassisTeleop extends LinearOpMode {
                 error.start();
             }
 
-            if (gamepad2.y)
-                player.start();
-
-            if (gamepad2.x)
-                running.start();
-
 
 
             if (gamepad1.dpad_right) {
-                strafeRightFor(1);
+                if (firstStrafe)
+                    firstStrafeHeading = angles.firstAngle; // record the original heading
+                else
+                    firstStrafe = false;
+
+                    strafeRightFor(1, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
-                strafeLeftFor(1);
+                if (firstStrafe)
+                    firstStrafeHeading = angles.firstAngle;
+                else
+                    firstStrafe = false;
+
+                strafeLeftFor(1, angles.firstAngle);
+
             } else {
+                firstStrafe = true;
                 rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
                 rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
 
@@ -146,16 +174,16 @@ public class ChassisTeleop extends LinearOpMode {
             // open: right = 0
             if (gamepad1.x) { // close
                 if (rightPos < 1.0)
-                    rightPos += 0.009;
+                    rightPos += 0.05;
 
                 if (leftPos > 0.0)
-                    leftPos -= 0.009;
+                    leftPos -= 0.05;
             } else if (gamepad1.b) { // open
                 if (rightPos > 0.3)
-                    rightPos -= 0.009;
+                    rightPos -= 0.05;
 
                 if (leftPos < .7)
-                    leftPos += 0.009;
+                    leftPos += 0.05;
             }
 
             if (gamepad1.y) {
@@ -169,16 +197,13 @@ public class ChassisTeleop extends LinearOpMode {
             if (gamepad1.dpad_down) {
                 //if (lifterPos > 100)
                     lifter.setPower(1);
-                player.pause();
                 error.start();
             } else if (gamepad1.dpad_up) {
                 //if (lifterPos < LIFTER_MAX)
                     lifter.setPower(-1);
-                player.pause();
                 error.start();
             } else {
                 lifter.setPower(0);
-                player.start();
             }
 
 
@@ -193,26 +218,50 @@ public class ChassisTeleop extends LinearOpMode {
             leftClamp.setPosition(leftPos);
             lifterPos = lifter.getCurrentPosition();
 
-            telemetry.addData("Left Clamp: ", leftPos);
-            telemetry.addData("Right Clamp: ", rightPos);
-            telemetry.addData("Lifter Pos: ", lifterPos);
-
-            telemetry.update();
+//            telemetry.addData("Left Clamp: ", leftPos);
+//            telemetry.addData("Right Clamp: ", rightPos);
+//            telemetry.addData("Lifter Pos: ", lifterPos);
+//
+//            telemetry.addData("Heading:", angles.firstAngle);
+//            telemetry.addData("Roll:", angles.secondAngle);
+//            telemetry.addData("Pitch:", angles.thirdAngle);
+//            telemetry.addData("X Accel", imu.getOverallAcceleration().xAccel);
+//            telemetry.addData("Y Accel", imu.getOverallAcceleration().yAccel);
+//
+//            telemetry.update();
         }
     }
 
-    private void strafeRightFor(double power) {
+    private void strafeRightFor(double power, float heading) {
+        float error = heading - firstStrafeHeading;
+        float factor = error * strafeKP;
+
         leftbackMotor.setPower(power * slowFactor);
-        leftfrontMotor.setPower(-power * slowFactor);
+        leftfrontMotor.setPower((-power * slowFactor) + factor);// + (error * strafeKP)); // cgabge tgus
         rightbackMotor.setPower(-power * slowFactor);
-        rightfrontMotor.setPower(power * slowFactor);
+        rightfrontMotor.setPower((power * slowFactor) + factor);// + (error * strafeKP)); // affected
+
+        telemetry.addData("right error: ", error);
+        telemetry.addData("factor: ", factor);
+        telemetry.addData("heading: ", heading);
+        telemetry.addData("first heading: ", firstStrafeHeading);
+        telemetry.update();
     }
 
-    private void strafeLeftFor(double power) {
+    private void strafeLeftFor(double power, float heading) {
+        float error = heading - firstStrafeHeading;
+        float factor = error * strafeKP;
+
         leftbackMotor.setPower(-power * slowFactor);
-        leftfrontMotor.setPower(power * slowFactor);
+        leftfrontMotor.setPower((power * slowFactor) + factor);// + (error * strafeKP));
         rightbackMotor.setPower(power * slowFactor);
-        rightfrontMotor.setPower(-power * slowFactor);
+        rightfrontMotor.setPower((-power * slowFactor) + factor);// + (error * strafeKP));
+
+        telemetry.addData("left error: ", error);
+        telemetry.addData("factor: ", factor);
+        telemetry.addData("heading: ", heading);
+        telemetry.addData("first heading: ", firstStrafeHeading);
+        telemetry.update();
     }
 
 }

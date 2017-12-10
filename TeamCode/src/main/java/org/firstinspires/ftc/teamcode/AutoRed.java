@@ -90,9 +90,9 @@ import ftc.vision.FrameGrabber;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoBlue", group="Linear Opmode")  // @Autonomous(...) is the other common choice
-public class AutoBlue extends LinearOpMode {
-    public final String TAG = "AutoBlue";
+@Autonomous(name="AutoRed", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+public class AutoRed extends LinearOpMode {
+    public final String TAG = "AutoRed";
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -118,7 +118,7 @@ public class AutoBlue extends LinearOpMode {
     private static final double     DRIVE_GEAR_REDUCTION    = 1.5 ;     // This is < 1.0 if geared UP
     private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     private static final double     COUNTS_PER_INCH         = 118;//(COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-           // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
+    // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
 
     // telemetry
     private Telemetry.Item debug;
@@ -365,21 +365,13 @@ public class AutoBlue extends LinearOpMode {
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 110; // "center" value for the ball
         System.out.println("Entering ball loop...");
-        //vuforia.setFrameQueueCapacity(1);
+       // vuforia.setFrameQueueCapacity(1);
 
         do {
             System.out.println("Entered Loop");
             //VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
             //Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
-            frame.grabSingleFrame();
 
-            while (!frame.isResultReady()) {
-                try {
-                    Thread.sleep(5); //sleep for 5 milliseconds wait for thing to be ready
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
             System.out.println("gonna process");
 
 //            while (!frame.isResultReady()) {
@@ -394,15 +386,13 @@ public class AutoBlue extends LinearOpMode {
 //            }
 
             BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
-
-
             telemetry.addData("Status", result.toString());
             telemetry.update();
 
             if (result.isFoundResult()) {
                 telemetry.addData("Blue: ", result.getBlue().getCenterX());
                 telemetry.addData("Red: ", result.getRed().getCenterX());
-                if (result.getLeftJewel().getColor() == BallColor.BLUE) { // left: blue     right: red
+                if (result.getLeftJewel().getColor() == BallColor.RED) { // left: blue     right: red
                     telemetry.addData("Left: ", "blue");
                     telemetry.addData("Right: ", "red");
                     telemetry.addData("ball", "will rotate left");
@@ -410,7 +400,7 @@ public class AutoBlue extends LinearOpMode {
 
                     jewelFlick.setPosition(jewelStickDown);
                     sleep(1000);
-                    rotateLeft(500, 1);
+                    //rotateLeft(500, 1);
                 } else {                                                  // left: red      right: blue
                     telemetry.addData("Left: ", "red");
                     telemetry.addData("Right: ", "blue");
@@ -419,7 +409,7 @@ public class AutoBlue extends LinearOpMode {
 
                     jewelFlick.setPosition(jewelStickDown);
                     sleep(1000);
-                    rotateRight(500, 1);
+                    //rotateRight(500, 1);
                 }
             }
 //
@@ -547,10 +537,10 @@ public class AutoBlue extends LinearOpMode {
 
             if (robotLocationTransform != null) {
                 lastLocation = robotLocationTransform;
-              //  System.out.println(lastLocation.getData());
-               // telemetry.addData("lastLocation", "success");
+                //  System.out.println(lastLocation.getData());
+                // telemetry.addData("lastLocation", "success");
             } else if (lastLocation == null) {
-               // telemetry.addData("lastLocation", "fail");
+                // telemetry.addData("lastLocation", "fail");
                 continue;
             }
 
@@ -728,18 +718,18 @@ public class AutoBlue extends LinearOpMode {
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 110; // "center" value for the ball
 
-                int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
+        int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
 
-                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-                    strafeRightFor(1, 0.7);
-                    telemetry.addData("Status", "Too much left");
-                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-                    strafeLeftFor(1, 0.7);
-                    telemetry.addData("Status", "Too much right");
-                } else {
-                    forwardFor(3, 0.7); // GO GO GO
-                    telemetry.addData("Status", "go go go");
-                }
+        if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+            strafeRightFor(1, 0.7);
+            telemetry.addData("Status", "Too much left");
+        } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+            strafeLeftFor(1, 0.7);
+            telemetry.addData("Status", "Too much right");
+        } else {
+            forwardFor(3, 0.7); // GO GO GO
+            telemetry.addData("Status", "go go go");
+        }
 
     }
 
