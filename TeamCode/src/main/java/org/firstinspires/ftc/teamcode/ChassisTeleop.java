@@ -45,7 +45,7 @@ public class ChassisTeleop extends LinearOpMode {
 
     private DcMotor lifter;
     private int lifterPos;
-    private final int LIFTER_MAX = -14000;
+    private final int LIFTER_MAX = -10500; //-10916
     private DigitalChannel lifterButton;
 
     private double slowFactor = 1;
@@ -71,6 +71,11 @@ public class ChassisTeleop extends LinearOpMode {
         lifter = hardwareMap.dcMotor.get("lifter");
         // lifterButton = hardwareMap.digitalChannel.get("button");
 
+        leftbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
         leftfrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
@@ -93,6 +98,12 @@ public class ChassisTeleop extends LinearOpMode {
         lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lifter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        MediaPlayer error = MediaPlayer.create(hardwareMap.appContext, R.raw.errormessage);
+        MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
+        MediaPlayer running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
+        MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
+
+
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
@@ -105,11 +116,24 @@ public class ChassisTeleop extends LinearOpMode {
                 slowFactor = 1;
             }
 
+            if (gamepad2.a) {
+                chime.start();
+            } else if (gamepad2.b) {
+                error.start();
+            }
+
+            if (gamepad2.y)
+                player.start();
+
+            if (gamepad2.x)
+                running.start();
+
+
 
             if (gamepad1.dpad_right) {
-                strafeRightFor(0.5);
+                strafeRightFor(1);
             } else if (gamepad1.dpad_left) {
-                strafeLeftFor(0.5);
+                strafeLeftFor(1);
             } else {
                 rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
                 rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
@@ -143,12 +167,18 @@ public class ChassisTeleop extends LinearOpMode {
             }
 
             if (gamepad1.dpad_down) {
-                lifter.setPower(1);
+                //if (lifterPos > 100)
+                    lifter.setPower(1);
+                player.pause();
+                error.start();
             } else if (gamepad1.dpad_up) {
                 //if (lifterPos < LIFTER_MAX)
-                lifter.setPower(-1);
+                    lifter.setPower(-1);
+                player.pause();
+                error.start();
             } else {
                 lifter.setPower(0);
+                player.start();
             }
 
 

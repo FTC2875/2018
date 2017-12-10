@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -58,6 +59,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.internal.SystemProperties;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -68,6 +70,8 @@ import java.util.List;
 import ftc.vision.BallCenterProcessor;
 import ftc.vision.BallCenterResult;
 import ftc.vision.BallColor;
+import ftc.vision.CryptoBoxProcessor;
+import ftc.vision.CryptoBoxResult;
 import ftc.vision.FrameGrabber;
 
 /**
@@ -104,10 +108,10 @@ public class AutoBlue extends LinearOpMode {
 
     // motor encoder calibration
     private static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: TETRIX Motor Encoder
-    private static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
+    private static final double     DRIVE_GEAR_REDUCTION    = 1.5 ;     // This is < 1.0 if geared UP
     private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
+    private static final double     COUNTS_PER_INCH         = 118;//(COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+           // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
 
     // telemetry
     private Telemetry.Item debug;
@@ -120,6 +124,8 @@ public class AutoBlue extends LinearOpMode {
     private List<VuforiaTrackable> allTrackables;
 
     private double proportionalGain = .007;
+
+
 
     @Override
     public void runOpMode() {
@@ -223,6 +229,8 @@ public class AutoBlue extends LinearOpMode {
         ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
+
+        MediaPlayer running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         columnLists.activate();
@@ -278,12 +286,16 @@ public class AutoBlue extends LinearOpMode {
 //            strafeRightFor(18,.8);
 //               telemetry.addLine("Strafe done");
 
-            currentTarget = detectPictograph();
-            try {
-                moveToBall();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            currentTarget = detectPictograph();
+//            try {
+//                moveToBall();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            sleep(11000);
+            running.start();
+            strafeRightFor(50, 1);
+
 
             telemetry.addData("Picto: ", currentTarget);
             telemetry.update();
@@ -434,7 +446,7 @@ public class AutoBlue extends LinearOpMode {
     }
 
     private void forwardFor(int inches, double speed) {
-        encoderDrive(inches, inches, inches, inches, speed);
+        encoderDrive(-inches, -inches, inches, inches, speed);
     }
 
     private void rotateRight(int time, double speed) {
@@ -587,6 +599,7 @@ public class AutoBlue extends LinearOpMode {
         resetMotors();
         setMotorRunToPos();
 
+        sleep(500); // wait for it to switch to position YOU NEED THIS OR IT WONT WORK
 
         leftFrontMotor.setTargetPosition((int)(leftFront * COUNTS_PER_INCH));
         leftBackMotor.setTargetPosition((int)(leftBack * COUNTS_PER_INCH));
@@ -600,17 +613,60 @@ public class AutoBlue extends LinearOpMode {
         //lol
         // hang until they're done
         while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy()) { // TODO add in front motors
-            telemetry.addData("Left Front: ", leftFrontMotor.getCurrentPosition());
-            telemetry.addData("Left Front: ", leftFrontMotor.getTargetPosition());
-            telemetry.addData("Left Back: ", leftBackMotor.getCurrentPosition());
-            telemetry.addData("Right Front: ", rightFrontMotor.getCurrentPosition());
-            telemetry.addData("Right Back: ", rightBackMotor.getCurrentPosition());
-            telemetry.addData("Right Back: ", rightBackMotor.getTargetPosition());
+            telemetry.addData("Left Front Current: ", leftFrontMotor.getCurrentPosition());
+            telemetry.addData("Left Front Target: ", leftFrontMotor.getTargetPosition());
+            telemetry.addData("Left Back Current: ", leftBackMotor.getCurrentPosition());
+            telemetry.addData("Right Front Current : ", rightFrontMotor.getCurrentPosition());
+            telemetry.addData("Right Back Current: ", rightBackMotor.getCurrentPosition());
+            telemetry.addData("Right Back Target: ", rightBackMotor.getTargetPosition());
             telemetry.addData("Im in the encoder loop", "yes");
             telemetry.update();
         }
 
         stopMotors();
+    }
+
+    private void goToBox() {
+        int center;
+        VuforiaLocalizer.CloseableFrame vuforiaFrame = null;
+        try {
+            vuforiaFrame = vuforia.getFrameQueue().take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+
+        CryptoBoxProcessor processor = new CryptoBoxProcessor();
+        CryptoBoxResult result = processor.process(System.currentTimeMillis(), openCVFrame, false).getResult();
+
+        if (currentTarget == Pictographs.CENTER)
+            center = result.getMiddleColx();
+        else if (currentTarget == Pictographs.LEFT)
+            center = result.getLeftx();
+        else if (currentTarget == Pictographs.RIGHT)
+            center = result.getRightx();
+        else {
+            center = result.getLeftx();
+            telemetry.addData("everything is going wrong", "didnt see pictograph");
+            telemetry.update();
+        }
+        // threshold values
+        final int CENTER_POSITION_THRESH = 20; // give some threshold for center
+        final int CENTER_POSITION = 110; // "center" value for the ball
+
+                int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
+
+                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+                    strafeRightFor(1, 0.7);
+                    telemetry.addData("Status", "Too much left");
+                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+                    strafeLeftFor(1, 0.7);
+                    telemetry.addData("Status", "Too much right");
+                } else {
+                    forwardFor(3, 0.7); // GO GO GO
+                    telemetry.addData("Status", "go go go");
+                }
+
     }
 
     private Mat vuforiaToOpenCV(VuforiaLocalizer.CloseableFrame vuforiaFrame) {
