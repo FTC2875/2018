@@ -9,28 +9,22 @@ public class BallCenterResult {
     private Jewel rightJewel;
     private boolean foundResult;
 
-    private final int BLUE_CENTER_X = 300;
+    private final int BLUE_CENTER_X = 390;
 
     public BallCenterResult(Jewel redJewel, Jewel blueJewel) {
         this.foundResult = true;
 
-        // TODO get rid of this
-        if (redJewel.getCenterX() < blueJewel.getCenterX()) {
-            leftJewel = redJewel;
-            rightJewel = blueJewel;
-        } else {
+        if (blueJewel.getCenterX() < BLUE_CENTER_X) {
             leftJewel = blueJewel;
             rightJewel = redJewel;
+        } else {
+            leftJewel = redJewel;
+            rightJewel = blueJewel;
         }
 
-        // todo replace with this
-//        if (blueJewel.getCenterX() < BLUE_CENTER_X) {
-//            leftJewel = blueJewel;
-//            rightJewel = redJewel;
-//        } else {
-//            leftJewel = redJewel;
-//            rightJewel = blueJewel;
-//        }
+        // debug
+//        leftJewel = blueJewel;
+//        rightJewel = redJewel;
 
     }
 

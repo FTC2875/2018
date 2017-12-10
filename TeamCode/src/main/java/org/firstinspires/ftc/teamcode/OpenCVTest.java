@@ -163,8 +163,8 @@ public class OpenCVTest extends LinearOpMode {
             }
 
 //            //processor.changeRedLower(h, s, v);
-            processor.changeSLower(h);
-            processor.changeSUpper(hUpper);
+//            processor.changeSLower(h);
+//            processor.changeSUpper(hUpper);
 
             frame.grabSingleFrame();
 
@@ -188,10 +188,8 @@ public class OpenCVTest extends LinearOpMode {
             } else {
                 telemetry.addData("Status", "No contours found");
             }
-            telemetry.addData("Count: ", lowerCount);
-//            telemetry.addData("HSV: ", "(" + h + "," + s + "," + v + ")");
-            telemetry.addData("H: ", "(" + h + "," + hUpper + ")");
-            telemetry.addData("ADD: ", add);
+            telemetry.addData("Right: ", result.getRightJewel().getCenterX());
+            telemetry.addData("Left: ", result.getLeftJewel().getCenterX());
             telemetry.update();
 
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
