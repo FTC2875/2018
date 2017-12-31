@@ -139,6 +139,10 @@ public class AutoBlue extends LinearOpMode {
     private final double jewelStickDown = 1;
     private final double jewelStickUp = 0;
 
+
+
+
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -456,6 +460,7 @@ public class AutoBlue extends LinearOpMode {
             break;
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
+
 
     private void setMotorNormal() {
         leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
