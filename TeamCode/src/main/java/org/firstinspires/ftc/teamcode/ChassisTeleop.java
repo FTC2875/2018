@@ -47,7 +47,6 @@ public class ChassisTeleop extends LinearOpMode {
 
     private Servo leftClamp;
     private Servo rightClamp;
-    private Servo flicker;
     private double leftPos = 0;
     private double rightPos = 0;
 
@@ -80,7 +79,6 @@ public class ChassisTeleop extends LinearOpMode {
 
         rightClamp = hardwareMap.servo.get("rightclamp");
         leftClamp = hardwareMap.servo.get("leftclamp");
-        flicker = hardwareMap.servo.get("flick");
 
         extender = hardwareMap.crservo.get("extender");
 
@@ -129,9 +127,13 @@ public class ChassisTeleop extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        flicker.setPosition(flickUpPosition);
+
 
         waitForStart();
+        Servo flicker;
+        flicker = hardwareMap.servo.get("flick");
+        flicker.setPosition(flickUpPosition);
+
         player.start();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
