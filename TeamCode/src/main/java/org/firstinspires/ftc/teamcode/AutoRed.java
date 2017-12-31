@@ -90,9 +90,9 @@ import ftc.vision.FrameGrabber;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoRed", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Autonomous(name="AutoBlue", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class AutoRed extends LinearOpMode {
-    public final String TAG = "AutoRed";
+    public final String TAG = "AutoBlue";
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -136,6 +136,7 @@ public class AutoRed extends LinearOpMode {
     private final float strafeKP = 0.5f;
 
     private final double jewelStickDown = 1;
+    private final double jewelStickUp = 0.3;
 
     @Override
     public void runOpMode() {
@@ -259,7 +260,8 @@ public class AutoRed extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
 
-
+        leftClamp.setPosition(.4);
+        rightClamp.setPosition(.6);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -333,7 +335,8 @@ public class AutoRed extends LinearOpMode {
 
             telemetry.addData("Picto: ", currentTarget);
             telemetry.update();
-            sleep(10000);
+
+            break;
 
         }
     }
@@ -365,13 +368,21 @@ public class AutoRed extends LinearOpMode {
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 110; // "center" value for the ball
         System.out.println("Entering ball loop...");
-       // vuforia.setFrameQueueCapacity(1);
+        //vuforia.setFrameQueueCapacity(1);
 
         do {
             System.out.println("Entered Loop");
             //VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
             //Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+            frame.grabSingleFrame();
 
+            while (!frame.isResultReady()) {
+                try {
+                    Thread.sleep(5); //sleep for 5 milliseconds wait for thing to be ready
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             System.out.println("gonna process");
 
 //            while (!frame.isResultReady()) {
@@ -386,6 +397,8 @@ public class AutoRed extends LinearOpMode {
 //            }
 
             BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
+
+
             telemetry.addData("Status", result.toString());
             telemetry.update();
 
@@ -393,23 +406,39 @@ public class AutoRed extends LinearOpMode {
                 telemetry.addData("Blue: ", result.getBlue().getCenterX());
                 telemetry.addData("Red: ", result.getRed().getCenterX());
                 if (result.getLeftJewel().getColor() == BallColor.RED) { // left: blue     right: red
-                    telemetry.addData("Left: ", "blue");
-                    telemetry.addData("Right: ", "red");
+                    telemetry.addData("Left: ", "red");
+                    telemetry.addData("Right: ", "blue");
                     telemetry.addData("ball", "will rotate left");
                     telemetry.update();
 
                     jewelFlick.setPosition(jewelStickDown);
                     sleep(1000);
-                    //rotateLeft(500, 1);
+                    rotateLeft(500, 1);
+
+                    // park
+                    sleep(1000);
+                    jewelFlick.setPosition(jewelStickUp);
+//                    forwardFor(-100, 1);
+//                    sleep(1000);
+//                    rotateRight(800, 1);
+//                    sleep(1000);
+//                    forwardFor(150, 1);
                 } else {                                                  // left: red      right: blue
-                    telemetry.addData("Left: ", "red");
-                    telemetry.addData("Right: ", "blue");
+                    telemetry.addData("Left: ", "blue");
+                    telemetry.addData("Right: ", "red");
                     telemetry.addData("ball", "will rotate right");
                     telemetry.update();
 
                     jewelFlick.setPosition(jewelStickDown);
                     sleep(1000);
-                    //rotateRight(500, 1);
+                    rotateRight(500, 1);
+
+                    // park
+                    sleep(1000);
+                    jewelFlick.setPosition(jewelStickUp);
+//                    rotateRight(1000, 1);
+//                    sleep(1000);
+//                    forwardFor(40, 1);
                 }
             }
 //
@@ -436,7 +465,7 @@ public class AutoRed extends LinearOpMode {
 //                ballStatus.setValue("Can't find balls, this is bad");
 //                telemetry.update();
 //            }
-
+            break;
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
 
@@ -487,11 +516,11 @@ public class AutoRed extends LinearOpMode {
 
 
     private void strafeLeftFor(int inches, double speed) {
-        encoderDrive(-inches, inches, -inches, inches, speed);
+        encoderDrive(-inches, inches, -inches, inches, speed, true);
     }
 
     private void strafeRightFor(int inches, double speed) {
-        encoderDrive(inches, -inches, inches, -inches, speed);
+        encoderDrive(-inches, inches, inches, -inches, speed, true);
     }
 
     private void forwardFor(int inches, double speed) {

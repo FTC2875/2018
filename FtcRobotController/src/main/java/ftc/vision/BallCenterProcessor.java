@@ -9,6 +9,7 @@ import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.features2d.Feature2D;
 import org.opencv.features2d.FeatureDetector;
@@ -32,8 +33,8 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
     private Scalar redHsvLower = new Scalar(174, 222, 0);
     private Scalar redHsvUpper = new Scalar(5, 255, 255);
 
-    private Scalar blueHsvLower = new Scalar(99, 250, 0);
-    private Scalar blueHsvUpper = new Scalar(113, 255, 255);
+    private Scalar blueHsvLower = new Scalar(96, 249, 58);
+    private Scalar blueHsvUpper = new Scalar(107, 255, 255);
 
 //    private final Scalar blueHsvLower = new Scalar(0, 0, 0);
 //    private final Scalar blueHsvUpper = new Scalar(179, 255, 255);
@@ -45,6 +46,7 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
     @Override
     public ImageProcessorResult<BallCenterResult> process(long startTime, Mat rgbaFrame, boolean saveImages) {
         Log.i(TAG, "Starting to image process ball");
+        Mat cropped = rgbaFrame.clone();
         Mat redHSV = rgbaFrame.clone();
         Mat blueHSV = rgbaFrame.clone();
         Mat hierachy = rgbaFrame.clone();
@@ -54,12 +56,15 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
         List<MatOfPoint> contoursRed = new ArrayList<>();
         List<MatOfPoint> contoursBlue = new ArrayList<>();
 
+        Rect croppedRect = new Rect(0, (int) rgbaFrame.size().height - 100, (int) rgbaFrame.size().width, 100);
+        cropped = new Mat(rgbaFrame, croppedRect);
+
 
         // erode and dilate to remove noise
         Mat kernel = Mat.ones(5, 5, CvType.CV_8U);
-        Mat morphedImage = new Mat(rgbaFrame.size(), rgbaFrame.type());
+        Mat morphedImage = new Mat(cropped.size(), rgbaFrame.type());
 
-        Imgproc.morphologyEx(rgbaFrame, morphedImage, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(cropped, morphedImage, Imgproc.MORPH_OPEN, kernel);
 
         Imgproc.cvtColor(morphedImage, redHSV, Imgproc.COLOR_RGB2HSV);
         Imgproc.cvtColor(morphedImage, blueHSV, Imgproc.COLOR_RGB2HSV);
@@ -111,17 +116,17 @@ public class BallCenterProcessor implements ImageProcessor<BallCenterResult> {
         }
     }
 
-    public void changeSLower(int value) {
-        blueHsvLower = new Scalar(99, value, 0);
-    }
-
-//    public void changeRedLower(int h, int s, int v) {
-//        blueHsvLower = new Scalar(h, s ,v);
+//    public void changeSLower(int value) {
+//        blueHsvLower = new Scalar(96, 249, value); //150 is good for s
 //    }
-
-    public void changeSUpper(int value) {
-        blueHsvUpper = new Scalar(113, value, 255);
-    }
+//
+////    public void changeRedLower(int h, int s, int v) {
+////        blueHsvLower = new Scalar(h, s ,v);
+////    }
+//
+//    public void changeSUpper(int value) {
+//        blueHsvUpper = new Scalar(107, 255, value);
+//    }
 
 
 

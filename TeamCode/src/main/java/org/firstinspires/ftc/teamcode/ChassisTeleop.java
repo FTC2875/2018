@@ -47,6 +47,7 @@ public class ChassisTeleop extends LinearOpMode {
 
     private Servo leftClamp;
     private Servo rightClamp;
+    private Servo flicker;
     private double leftPos = 0;
     private double rightPos = 0;
 
@@ -58,6 +59,8 @@ public class ChassisTeleop extends LinearOpMode {
     private BNO055IMU imu;
     private boolean firstStrafe  = true;
     private float firstStrafeHeading;
+
+    private final double flickUpPosition = 0.2;
     private final float strafeKP = 0.05f;
 
     private double slowFactor = 1;
@@ -77,6 +80,7 @@ public class ChassisTeleop extends LinearOpMode {
 
         rightClamp = hardwareMap.servo.get("rightclamp");
         leftClamp = hardwareMap.servo.get("leftclamp");
+        flicker = hardwareMap.servo.get("flick");
 
         extender = hardwareMap.crservo.get("extender");
 
@@ -100,8 +104,8 @@ public class ChassisTeleop extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
 
-        leftClamp.setPosition(1);
-        rightClamp.setPosition(0);
+//        leftClamp.setPosition(1);
+//        rightClamp.setPosition(0);
 
         leftPos = leftClamp.getPosition();
         rightPos = rightClamp.getPosition();
@@ -125,9 +129,10 @@ public class ChassisTeleop extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
+        flicker.setPosition(flickUpPosition);
 
         waitForStart();
-
+        player.start();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
@@ -172,13 +177,13 @@ public class ChassisTeleop extends LinearOpMode {
 
             // open: left = 1
             // open: right = 0
-            if (gamepad1.x) { // close
+            if (gamepad2.x) { // close
                 if (rightPos < 1.0)
                     rightPos += 0.05;
 
                 if (leftPos > 0.0)
                     leftPos -= 0.05;
-            } else if (gamepad1.b) { // open
+            } else if (gamepad2.b) { // open
                 if (rightPos > 0.3)
                     rightPos -= 0.05;
 
@@ -186,19 +191,19 @@ public class ChassisTeleop extends LinearOpMode {
                     leftPos += 0.05;
             }
 
-            if (gamepad1.y) {
+            if (gamepad2.y) {
                 extender.setPower(1);
-            } else if (gamepad1.a) {
+            } else if (gamepad2.a) {
                 extender.setPower(-1);
             } else {
                 extender.setPower(0);
             }
 
-            if (gamepad1.dpad_down) {
+            if (gamepad2.dpad_down) {
                 //if (lifterPos > 100)
                     lifter.setPower(1);
                 error.start();
-            } else if (gamepad1.dpad_up) {
+            } else if (gamepad2.dpad_up) {
                 //if (lifterPos < LIFTER_MAX)
                     lifter.setPower(-1);
                 error.start();
@@ -245,6 +250,7 @@ public class ChassisTeleop extends LinearOpMode {
         telemetry.addData("factor: ", factor);
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
+        telemetry.addData("firststrafe", firstStrafe);
         telemetry.update();
     }
 

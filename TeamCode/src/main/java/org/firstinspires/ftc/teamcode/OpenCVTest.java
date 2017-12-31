@@ -112,78 +112,80 @@ public class OpenCVTest extends LinearOpMode {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
+//        imu.initialize(parameters);
 
         // run until the end of the match (driver presses STOP)
         int lowerCount = 0;
         int upperCount = 0;
         while (opModeIsActive()) {
-//
-//            if (gamepad1.a) {
-//                lowerCount++;
-//            } else if (gamepad1.y) {
-//                upperCount = 0;
-//            }
-//
-////            processor.changeHLower(lowerCount);
-////            processor.changeHUpper(upperCount);
-//
-//            if (gamepad1.x) {
+
+            if (gamepad1.a) {
+                lowerCount++;
+            } else if (gamepad1.y) {
+                upperCount = 0;
+            }
+
+//            processor.changeHLower(lowerCount);
+//            processor.changeHUpper(upperCount);
+
+            if (gamepad1.x) {
+                if (add)
+                    h += addAmt;
+                else
+                    h -= addAmt;
+            }
+
+            if (gamepad1.y) {
+                if (add)
+                    s += addAmt;
+                else
+                    s -= addAmt;
+            }
+
+            if (gamepad1.b) {
 //                if (add)
-//                    h += addAmt;
-//                else
-//                    h -= addAmt;
-//            }
-//
-//            if (gamepad1.y) {
-//                if (add)
-//                    s += addAmt;
-//                else
-//                    s -= addAmt;
-//            }
-//
-//            if (gamepad1.b) {
-////                if (add)
-////                    v += addAmt;
-////                else
-////                    v -= addAmt;
-//                if (add)
-//                    hUpper += addAmt;
+//                    v += addAmt;
 //                else
 //                    v -= addAmt;
-//            }
-//
-//            if (gamepad1.a) {
-//                add = !add;
-//            }
-//
-//            if (gamepad1.left_bumper) {
-//                addAmt = 1;
-//            }
-//
-//            if (gamepad1.right_bumper) {
-//                addAmt = 50;
-//            }
-//
-//            if (gamepad1.dpad_up) {
-//                h+= addAmt;
-//            }
-//
-//            if (gamepad1.dpad_down) {
-//                h-= addAmt;
-//            }
-//
-//            if (gamepad1.dpad_left) {
-//                hUpper -= addAmt;
-//            }
-//
-//            if (gamepad1.dpad_right) {
-//                hUpper += addAmt;
-//            }
-//
-////            //processor.changeRedLower(h, s, v);
-////            processor.changeSLower(h);
-////            processor.changeSUpper(hUpper);
+                if (add)
+                    v += addAmt;
+                else
+                    v -= addAmt;
+            }
+
+            if (gamepad1.a) {
+                add = !add;
+            }
+
+            if (gamepad1.left_bumper) {
+                addAmt = 1;
+            }
+
+            if (gamepad1.right_bumper) {
+                addAmt = 50;
+            }
+
+            if (gamepad1.dpad_up) {
+                h+= addAmt;
+            }
+
+            if (gamepad1.dpad_down) {
+                h-= addAmt;
+            }
+
+            if (gamepad1.dpad_left) {
+                hUpper -= addAmt;
+            }
+
+            if (gamepad1.dpad_right) {
+                hUpper += addAmt;
+            }
+
+//            //processor.changeRedLower(h, s, v);
+//            processor.changeSLower(h);
+//            processor.changeSUpper(hUpper);
+
+
 
             frame.grabSingleFrame();
 
@@ -197,18 +199,20 @@ public class OpenCVTest extends LinearOpMode {
 
             BallCenterResult result = (BallCenterResult) frame.getResult().getResult();
 
+//            telemetry.addData("S Lower", h);
+//            telemetry.addData("S Upper", hUpper);
             if (result.isFoundResult()) { // check if found anything
 //                telemetry.addData("Status", "X " + result.getxCoord());
 //                telemetry.addData("Status", "Y " + result.getyCoord());
 //                telemetry.addData("Area", result.getArea());
-
+                telemetry.addData("Blue X: ", result.getBlue().getCenterX());
                 telemetry.addData("Right Jewel: ", result.getRightJewel());
                 telemetry.addData("Left Jewel: ", result.getLeftJewel());
             } else {
                 telemetry.addData("Status", "No contours found");
             }
-            telemetry.addData("Right: ", result.getRightJewel().getCenterX());
-            telemetry.addData("Left: ", result.getLeftJewel().getCenterX());
+//            telemetry.addData("Right: ", result.getRightJewel().getCenterX());
+//            telemetry.addData("Left: ", result.getLeftJewel().getCenterX());
           //  imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
             telemetry.update();

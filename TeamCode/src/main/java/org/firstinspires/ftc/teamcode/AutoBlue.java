@@ -90,7 +90,7 @@ import ftc.vision.FrameGrabber;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoBlue", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Autonomous(name="AutoRed", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class AutoBlue extends LinearOpMode {
     public final String TAG = "AutoBlue";
 
@@ -107,6 +107,7 @@ public class AutoBlue extends LinearOpMode {
     private Servo jewelFlick;
     private Servo leftClamp;
     private Servo rightClamp;
+
 
     // AndyMark 20: 560
     // AndyMark 40: 1120
@@ -136,6 +137,7 @@ public class AutoBlue extends LinearOpMode {
     private final float strafeKP = 0.5f;
 
     private final double jewelStickDown = 1;
+    private final double jewelStickUp = 0;
 
     @Override
     public void runOpMode() {
@@ -259,7 +261,8 @@ public class AutoBlue extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
 
-
+        leftClamp.setPosition(.4);
+        rightClamp.setPosition(.6);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -333,7 +336,11 @@ public class AutoBlue extends LinearOpMode {
 
             telemetry.addData("Picto: ", currentTarget);
             telemetry.update();
-            sleep(10000);
+
+//            sleep(500);
+//            jewelFlick.setPosition(jewelStickUp);
+            jewelFlick.setPosition(0.3);
+            break;
 
         }
     }
@@ -400,8 +407,8 @@ public class AutoBlue extends LinearOpMode {
             telemetry.update();
 
             if (result.isFoundResult()) {
-                telemetry.addData("Blue: ", result.getBlue().getCenterX());
-                telemetry.addData("Red: ", result.getRed().getCenterX());
+                telemetry.addData("Blue: ", result.getBlue().getCenterX()); //243
+                telemetry.addData("Red: ", result.getRed().getCenterX());   //222
                 if (result.getLeftJewel().getColor() == BallColor.BLUE) { // left: blue     right: red
                     telemetry.addData("Left: ", "blue");
                     telemetry.addData("Right: ", "red");
@@ -446,7 +453,7 @@ public class AutoBlue extends LinearOpMode {
 //                ballStatus.setValue("Can't find balls, this is bad");
 //                telemetry.update();
 //            }
-
+            break;
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
 
@@ -497,11 +504,11 @@ public class AutoBlue extends LinearOpMode {
 
 
     private void strafeLeftFor(int inches, double speed) {
-        encoderDrive(-inches, inches, -inches, inches, speed);
+        encoderDrive(-inches, inches, -inches, inches, speed, true);
     }
 
     private void strafeRightFor(int inches, double speed) {
-        encoderDrive(inches, -inches, inches, -inches, speed);
+        encoderDrive(-inches, inches, inches, -inches, speed, true);
     }
 
     private void forwardFor(int inches, double speed) {
@@ -675,7 +682,7 @@ public class AutoBlue extends LinearOpMode {
         float originalHeading;
 
         // hang until they're done
-        while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy()) { // TODO add in front motors
+        while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy() && opModeIsActive()) { // TODO add in front motors
             Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
             if (isStrafing) {

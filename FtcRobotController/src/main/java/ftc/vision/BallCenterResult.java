@@ -13,7 +13,10 @@ public class BallCenterResult {
     private Jewel red;
 
     // todo find a better way to do this
-    private final int BLUE_CENTER_X = 390;
+    private final int BLUE_CENTER_X = 300;
+
+    //243
+    //222
 
     public BallCenterResult(Jewel redJewel, Jewel blueJewel) {
         this.foundResult = true;
