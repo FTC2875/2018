@@ -149,7 +149,7 @@ public class ChassisTeleop extends LinearOpMode {
                 error.start();
             }
 
-
+//haha
 
             if (gamepad1.dpad_right) {
                 if (firstStrafe)
