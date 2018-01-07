@@ -114,7 +114,7 @@ public class ChassisTeleop extends LinearOpMode {
 
         MediaPlayer error = MediaPlayer.create(hardwareMap.appContext, R.raw.errormessage);
         MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
-        MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
+        MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.warningmessage);
 
         // rev imu stuff
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
