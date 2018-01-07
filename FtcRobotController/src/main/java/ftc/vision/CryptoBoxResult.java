@@ -20,7 +20,7 @@ public class CryptoBoxResult
     public CryptoBoxResult(ArrayList<Rect> boxes)
     {
         this.numColumns = boxes.size();
-        if (boxes.size()== 4)
+        if (boxes.size()>= 4)
         {
             this.leftColx = boxes.get(0).x;
             this.middleColx = boxes.get(1).x;
@@ -39,7 +39,7 @@ public class CryptoBoxResult
     {
         return rightColx;
     }
-    public int getMiddleColx()
+    public int getMiddlex()
     {
         return middleColx;
     }

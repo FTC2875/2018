@@ -332,20 +332,20 @@ public class AutoBlue extends LinearOpMode {
 //                e.printStackTrace();
 //            }
 
-            try {
-                moveToBall();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            telemetry.addData("Picto: ", currentTarget);
-            telemetry.update();
-
-//            sleep(500);
-//            jewelFlick.setPosition(jewelStickUp);
-            jewelFlick.setPosition(0.3);
-            break;
-
+//            try {
+//                moveToBall();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            telemetry.addData("Picto: ", currentTarget);
+//            telemetry.update();
+//
+////            sleep(500);
+////            jewelFlick.setPosition(jewelStickUp);
+//            jewelFlick.setPosition(0.3);
+//            break;
+            moveToColumn();
         }
     }
 
@@ -460,38 +460,74 @@ public class AutoBlue extends LinearOpMode {
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
 
-//    private void moveToColumn()
-//    {
-//
-//        VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
-//        Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
-//        CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
-//        CryptoBoxResult boxResult =  boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
-//
-//        Pictographs pic = detectPictograph();
-//
-//        if (pic == Pictographs.LEFT)
-//        {
-//            while (boxResult.getLeftx() == )
-//
-//        }
-//
-//        if (pic == Pictographs.CENTER)
-//        {
-//
-//
-//        }
-//
-//        if (pic == Pictographs.RIGHT)
-//        {
-//
-//
-//        }
-//
-//
-//
-//    }
-//
+    private void moveToColumn() {
+
+        VuforiaLocalizer.CloseableFrame vuforiaFrame = null;
+        try {
+            vuforiaFrame = vuforia.getFrameQueue().take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+        CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
+        CryptoBoxResult boxResult = boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
+
+        Pictographs pic = Pictographs.LEFT;
+        double error;
+
+        if (pic == Pictographs.LEFT) {
+           error = boxResult.getLeftx() - openCVFrame.width() / 2;
+            while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+            {
+                error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+
+                if (error < 0) {
+                    strafeLeftFor(1, 1);
+                }
+
+                if (error > 0) {
+                    strafeRightFor(1, 1);
+                }
+            }
+
+        }
+
+        if (pic == Pictographs.CENTER)
+        {
+             error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+            while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+            {
+                error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+                if (error < 0) {
+                    strafeLeftFor(1, 1);
+                }
+
+                if (error > 0) {
+                    strafeRightFor(1, 1);
+                }
+
+            }
+
+            if (pic == Pictographs.RIGHT)
+            {
+                error = boxResult.getRightx() - openCVFrame.width() / 2;
+                while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+                {
+                    error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+
+                    if (error < 0) {
+                        strafeLeftFor(1, 1);
+                    }
+
+                    if (error > 0) {
+                        strafeRightFor(1, 1);
+                    }
+                }
+            }
+
+        }
+    }
+
 
 
 
@@ -771,7 +807,7 @@ public class AutoBlue extends LinearOpMode {
         CryptoBoxResult result = processor.process(System.currentTimeMillis(), openCVFrame, false).getResult();
 
         if (currentTarget == Pictographs.CENTER)
-            center = result.getMiddleColx();
+            center = result.getMiddlex();
         else if (currentTarget == Pictographs.LEFT)
             center = result.getLeftx();
         else if (currentTarget == Pictographs.RIGHT)
