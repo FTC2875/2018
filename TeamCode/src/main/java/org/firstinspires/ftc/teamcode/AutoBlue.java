@@ -491,7 +491,7 @@ public class AutoBlue extends LinearOpMode {
             }
 
         }
-
+//haha
         if (pic == Pictographs.CENTER)
         {
              error = boxResult.getMiddlex() - openCVFrame.width() / 2;
