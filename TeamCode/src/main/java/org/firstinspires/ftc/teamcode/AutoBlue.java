@@ -477,6 +477,8 @@ public class AutoBlue extends LinearOpMode {
 
         if (pic == Pictographs.LEFT) {
            error = boxResult.getLeftx() - openCVFrame.width() / 2;
+           telemetry.addData("Error", error);
+           telemetry.update();
             while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
@@ -494,7 +496,9 @@ public class AutoBlue extends LinearOpMode {
 //haha
         if (pic == Pictographs.CENTER)
         {
-             error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+            error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+            telemetry.addData("Error", error);
+            telemetry.update();
             while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
@@ -511,6 +515,8 @@ public class AutoBlue extends LinearOpMode {
             if (pic == Pictographs.RIGHT)
             {
                 error = boxResult.getRightx() - openCVFrame.width() / 2;
+                telemetry.addData("Error", error);
+                telemetry.update();
                 while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
                 {
                     error = boxResult.getMiddlex() - openCVFrame.width() / 2;
