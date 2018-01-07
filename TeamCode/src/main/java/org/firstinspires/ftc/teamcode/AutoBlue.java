@@ -46,6 +46,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.vuforia.CylinderTargetResult;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -379,8 +380,7 @@ public class AutoBlue extends LinearOpMode {
 
         do {
             System.out.println("Entered Loop");
-            //VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
-            //Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+
             frame.grabSingleFrame();
 
             while (!frame.isResultReady()) {
@@ -459,6 +459,52 @@ public class AutoBlue extends LinearOpMode {
             break;
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
+
+//    private void moveToColumn()
+//    {
+//
+//        VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
+//        Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+//        CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
+//        CryptoBoxResult boxResult =  boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
+//
+//        Pictographs pic = detectPictograph();
+//
+//        if (pic == Pictographs.LEFT)
+//        {
+//            while (boxResult.getLeftx() == )
+//
+//        }
+//
+//        if (pic == Pictographs.CENTER)
+//        {
+//
+//
+//        }
+//
+//        if (pic == Pictographs.RIGHT)
+//        {
+//
+//
+//        }
+//
+//
+//
+//    }
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     private void setMotorNormal() {

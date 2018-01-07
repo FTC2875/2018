@@ -35,7 +35,6 @@ public class CryptoBoxResult
     {
         return leftColx;
     }
-
     public int getRightx()
     {
         return rightColx;
