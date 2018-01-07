@@ -156,16 +156,14 @@ public class ChassisTeleop extends LinearOpMode {
             if (gamepad1.dpad_right) {
                 if (firstStrafe)
                     firstStrafeHeading = angles.firstAngle; // record the original heading
-                else
-                    firstStrafe = false;
 
-                    strafeRightFor(1, angles.firstAngle);
+                firstStrafe = false;
+                strafeRightFor(1, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
                 if (firstStrafe)
                     firstStrafeHeading = angles.firstAngle;
-                else
-                    firstStrafe = false;
 
+                firstStrafe = false;
                 strafeLeftFor(1, angles.firstAngle);
 
             } else {
@@ -240,15 +238,21 @@ public class ChassisTeleop extends LinearOpMode {
     }
 
     private void strafeRightFor(double power, float heading) {
-        float error = heading - firstStrafeHeading;
-        float factor = error * strafeKP;
+        float error = firstStrafeHeading - heading;
+        float factor = 1;
+
+        if (heading > firstStrafeHeading)
+            factor = 0.3f;
+        else if (heading < firstStrafeHeading)
+            factor = 1.75f;
+
 
         leftbackMotor.setPower(power * slowFactor);
-        leftfrontMotor.setPower((-power * slowFactor) + factor);// + (error * strafeKP)); // cgabge tgus
+        leftfrontMotor.setPower((-power * slowFactor) * factor);// + (error * strafeKP)); // cgabge tgus
         rightbackMotor.setPower(-power * slowFactor);
-        rightfrontMotor.setPower((power * slowFactor) + factor);// + (error * strafeKP)); // affected
+        rightfrontMotor.setPower((power * slowFactor) * factor);// + (error * strafeKP)); // affected
 
-        telemetry.addData("right error: ", error);
+        telemetry.addData("error: ", error);
         telemetry.addData("factor: ", factor);
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
@@ -257,15 +261,20 @@ public class ChassisTeleop extends LinearOpMode {
     }
 
     private void strafeLeftFor(double power, float heading) {
-        float error = heading - firstStrafeHeading;
-        float factor = error * strafeKP;
+        float error = firstStrafeHeading - heading;
+        float factor = 1;
+
+        if (heading < firstStrafeHeading)
+            factor = 0.3f;
+        else if (heading > firstStrafeHeading)
+            factor = 1.75f;
 
         leftbackMotor.setPower(-power * slowFactor);
-        leftfrontMotor.setPower((power * slowFactor) + factor);// + (error * strafeKP));
+        leftfrontMotor.setPower((power * slowFactor) * factor);// + (error * strafeKP));
         rightbackMotor.setPower(power * slowFactor);
-        rightfrontMotor.setPower((-power * slowFactor) + factor);// + (error * strafeKP));
+        rightfrontMotor.setPower((-power * slowFactor) * factor);// + (error * strafeKP));
 
-        telemetry.addData("left error: ", error);
+        telemetry.addData("error: ", error);
         telemetry.addData("factor: ", factor);
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
