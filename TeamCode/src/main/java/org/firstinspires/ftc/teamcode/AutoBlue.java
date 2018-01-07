@@ -63,6 +63,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.internal.vuforia.VuforiaLocalizerImpl;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -180,79 +181,79 @@ public class AutoBlue extends LinearOpMode {
         //                                                //
         //                                                //
         ////////////////////////////////////////////////////
-//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
-//        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
-//        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-//        this.vuforia = new VuforiaLocalizerCustomImpl(parameters);
-//        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
-//
-//        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
-//        leftTarget = columnLists.get(2);
-//        leftTarget.setName("leftTarget");  // Left
-//
-//        centerTarget  = columnLists.get(1);
-//        centerTarget.setName("centerTarget");  // Center
-//
-//        rightTarget  = columnLists.get(0);
-//        rightTarget.setName("rightTarget");  // Right
-//
-//
-//        allTrackables = new ArrayList<VuforiaTrackable>();
-//        allTrackables.addAll(columnLists);
-//
-//
-//        float mmPerInch        = 25.4f;
-//        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
-//        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
-//
-//
-//        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
-//                /* Then we translate the target off to the RED WALL. Our translation here
-//                is a negative translation in X.*/
-//                .translation( 0, 0, 0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
-//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        leftTarget.setLocation(leftTargetLocationOnField);
-//        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
-//
-//
-//        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
-//                /* Then we translate the target off to the Blue Audience wall.
-//                Our translation here is a positive translation in Y.*/
-//                .translation(0, 0, 0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        centerTarget.setLocation(centerTargetLocationOnField);
-//        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
-//
-//
-//        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
-//                /* Then we translate the target off to the Blue Audience wall.
-//                Our translation here is a positive translation in Y.*/
-//                .translation(0, 0, 0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        rightTarget.setLocation(rightTargetLocationOnField);
-//        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
-//
-//
-//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-//                .translation(0,0,0)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        AxesReference.EXTRINSIC, AxesOrder.YZY,
-//                        AngleUnit.DEGREES, 0, 0, 0));
-//        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
-//
-//
-//        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-//        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-//        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
+        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = new VuforiaLocalizerImpl(parameters);
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+
+        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
+        leftTarget = columnLists.get(2);
+        leftTarget.setName("leftTarget");  // Left
+
+        centerTarget  = columnLists.get(1);
+        centerTarget.setName("centerTarget");  // Center
+
+        rightTarget  = columnLists.get(0);
+        rightTarget.setName("rightTarget");  // Right
+
+
+        allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(columnLists);
+
+
+        float mmPerInch        = 25.4f;
+        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
+        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+
+
+        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the RED WALL. Our translation here
+                is a negative translation in X.*/
+                .translation( 0, 0, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        leftTarget.setLocation(leftTargetLocationOnField);
+        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
+
+
+        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the Blue Audience wall.
+                Our translation here is a positive translation in Y.*/
+                .translation(0, 0, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        centerTarget.setLocation(centerTargetLocationOnField);
+        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
+
+
+        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the Blue Audience wall.
+                Our translation here is a positive translation in Y.*/
+                .translation(0, 0, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        rightTarget.setLocation(rightTargetLocationOnField);
+        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
+
+
+        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+                .translation(0,0,0)
+                .multiplied(Orientation.getRotationMatrix(
+                        AxesReference.EXTRINSIC, AxesOrder.YZY,
+                        AngleUnit.DEGREES, 0, 0, 0));
+        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
+
+
+        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
         // test imu stuff
         BNO055IMU.Parameters IMUParameters = new BNO055IMU.Parameters();

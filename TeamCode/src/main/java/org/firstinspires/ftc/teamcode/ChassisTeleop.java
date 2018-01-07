@@ -60,7 +60,7 @@ public class ChassisTeleop extends LinearOpMode {
     private float firstStrafeHeading;
 
     private final double flickUpPosition = 0.2;
-    private final float strafeKP = 0.05f;
+    private final float strafeKP = 0.1f;
 
     private double slowFactor = 1;
     @Override
@@ -158,13 +158,13 @@ public class ChassisTeleop extends LinearOpMode {
                     firstStrafeHeading = angles.firstAngle; // record the original heading
 
                 firstStrafe = false;
-                strafeRightFor(1, angles.firstAngle);
+                strafeRightFor(0.7, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
                 if (firstStrafe)
                     firstStrafeHeading = angles.firstAngle;
 
                 firstStrafe = false;
-                strafeLeftFor(1, angles.firstAngle);
+                strafeLeftFor(0.7, angles.firstAngle);
 
             } else {
                 firstStrafe = true;
@@ -257,12 +257,7 @@ public class ChassisTeleop extends LinearOpMode {
 
     private void strafeLeftFor(double power, float heading) {
         float error = firstStrafeHeading - heading;
-        float factor = 1;
-
-        if (heading < firstStrafeHeading)
-            factor = 0.3f;
-        else if (heading > firstStrafeHeading)
-            factor = 1.75f;
+        float factor = (error * strafeKP) + 1;
 
         leftbackMotor.setPower(-power * slowFactor);
         leftfrontMotor.setPower((power * slowFactor) * factor);// + (error * strafeKP));
