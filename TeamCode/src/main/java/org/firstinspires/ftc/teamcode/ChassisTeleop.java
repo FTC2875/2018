@@ -239,12 +239,7 @@ public class ChassisTeleop extends LinearOpMode {
 
     private void strafeRightFor(double power, float heading) {
         float error = firstStrafeHeading - heading;
-        float factor = 1;
-
-        if (heading > firstStrafeHeading)
-            factor = 0.3f;
-        else if (heading < firstStrafeHeading)
-            factor = 1.75f;
+        float factor = (error * strafeKP) + 1;
 
 
         leftbackMotor.setPower(power * slowFactor);
