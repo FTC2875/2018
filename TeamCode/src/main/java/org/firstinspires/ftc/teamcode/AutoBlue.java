@@ -181,13 +181,22 @@ public class AutoBlue extends LinearOpMode {
         //                                                //
         //                                                //
         ////////////////////////////////////////////////////
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
+
+
+        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        //Created these two lines to see if they work
+
+
         parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        this.vuforia = new VuforiaLocalizerImpl(parameters);
+        //this.vuforia = new VuforiaLocalizerImpl(parameters);
+
+        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
 
-        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
+        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("FTC-Relic-Targets");
         leftTarget = columnLists.get(2);
         leftTarget.setName("leftTarget");  // Left
 
@@ -254,6 +263,16 @@ public class AutoBlue extends LinearOpMode {
         ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+
+        ////////////////////////////////////////////////////////////////
+        ////                                                        ////
+        ////                                                        ////
+        ////                End Vuforia Init Stuff                  ////
+        ////                                                        ////
+        ////                                                        ////
+        ////////////////////////////////////////////////////////////////
+
+
 
         // test imu stuff
         BNO055IMU.Parameters IMUParameters = new BNO055IMU.Parameters();
@@ -469,10 +488,12 @@ public class AutoBlue extends LinearOpMode {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        telemetry.addData("Before Processing", null);
+
         Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
         CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
         CryptoBoxResult boxResult = boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
-
+        telemetry.addData("After Processing", null);
         Pictographs pic = Pictographs.LEFT;
         double error;
 
