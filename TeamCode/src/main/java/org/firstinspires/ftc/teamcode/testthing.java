@@ -64,10 +64,10 @@ import java.io.IOException;
 public class testthing extends LinearOpMode {
 
     /* Declare OpMode members. */
-    private CRServo one;
-    private CRServo two;
-    private CRServo three;
-    private CRServo four;
+    private CRServo topr;
+    private CRServo topl;
+    private CRServo botr;
+    private CRServo botl;
     private Servo left;
     private Servo right;
 
@@ -82,24 +82,50 @@ public class testthing extends LinearOpMode {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
-        left = hardwareMap.crservo.get("left");
-        right = hardwareMap.crservo.get("right");
-
+        left = hardwareMap.servo.get("left");
+        right = hardwareMap.servo.get("right");
+        topr = hardwareMap.crservo.get("topr");
+        topl = hardwareMap.crservo.get("topl");
+        botr = hardwareMap.crservo.get("botr");
+        botl = hardwareMap.crservo.get("botl");
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
 
-
-            if (gamepad1.dpad_up) {
-                leftFlick.setPower(1.0);
-                rightFlick.setPower(-1.0);
-            } else {
-                leftFlick.setPower(-1.0);
-                rightFlick.setPower(1.0);
+            if(gamepad1.dpad_left){
+                left.setPosition(0);
+                right.setPosition(0);
             }
-
+            else if(gamepad1.dpad_right){
+                left.setPosition(1);
+                right.setPosition(1);
+            }
+            if(gamepad1.y){
+                topr.setPower(1);
+                topl.setPower(1);
+            }
+            else if(gamepad1.a) {
+                topr.setPower(-1);
+                topl.setPower(-1);
+            }
+            else{
+                topr.setPower(0);
+                topl.setPower(0);
+            }
+            if(gamepad1.x){
+                botr.setPower(1);
+                botl.setPower(1);
+            }
+            else if(gamepad1.b){
+                botr.setPower(-1);
+                botl.setPower(-1);
+            }
+            else{
+                botr.setPower(0);
+                botl.setPower(0);
+            }
             telemetry.update();
         }
     }
