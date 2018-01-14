@@ -195,6 +195,7 @@ public class AutoBlue extends LinearOpMode {
 
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+        vuforia.setFrameQueueCapacity(2);
 
         VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("FTC-Relic-Targets");
         leftTarget = columnLists.get(2);
@@ -482,18 +483,22 @@ public class AutoBlue extends LinearOpMode {
 
     private void moveToColumn() {
 
+
         VuforiaLocalizer.CloseableFrame vuforiaFrame = null;
         try {
             vuforiaFrame = vuforia.getFrameQueue().take();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        telemetry.addData("Before Processing", null);
+
+
+
 
         Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
         CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
         CryptoBoxResult boxResult = boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
-        telemetry.addData("After Processing", null);
+
+
         Pictographs pic = Pictographs.LEFT;
         double error;
 
@@ -501,21 +506,21 @@ public class AutoBlue extends LinearOpMode {
            error = boxResult.getLeftx() - openCVFrame.width() / 2;
            telemetry.addData("Error", error);
            telemetry.update();
-            while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+            while (0 < Math.abs(error) && Math.abs(error) < 200) //TODO Give tolerance to this threshold
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
 
                 if (error < 0) {
-                    strafeLeftFor(1, 1);
+                    strafeRightFor(1, 1);
                 }
 
                 if (error > 0) {
-                    strafeRightFor(1, 1);
+                    strafeLeftFor(1, 1);
                 }
             }
 
         }
-//haha
+
         if (pic == Pictographs.CENTER)
         {
             error = boxResult.getMiddlex() - openCVFrame.width() / 2;
@@ -525,11 +530,11 @@ public class AutoBlue extends LinearOpMode {
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
                 if (error < 0) {
-                    strafeLeftFor(1, 1);
+                    strafeRightFor(1, 1);
                 }
 
                 if (error > 0) {
-                    strafeRightFor(1, 1);
+                    strafeLeftFor(1, 1);
                 }
 
             }
@@ -544,11 +549,11 @@ public class AutoBlue extends LinearOpMode {
                     error = boxResult.getMiddlex() - openCVFrame.width() / 2;
 
                     if (error < 0) {
-                        strafeLeftFor(1, 1);
+                        strafeRightFor(1, 1);
                     }
 
                     if (error > 0) {
-                        strafeRightFor(1, 1);
+                        strafeLeftFor(1, 1);
                     }
                 }
             }
