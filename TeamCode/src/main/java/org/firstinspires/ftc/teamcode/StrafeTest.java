@@ -34,8 +34,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="HubBotTeleop", group="Linear Opmode")  // @Autonomous(...) is the other common choice
-public class ChassisTeleop extends LinearOpMode {
+@TeleOp(name="StrafeTest", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+public class StrafeTest extends LinearOpMode {
 
     /* Declare OpMode members. */
     private DcMotor rightfrontMotor;
@@ -62,7 +62,9 @@ public class ChassisTeleop extends LinearOpMode {
     private final double flickUpPosition = 0.2;
     private final float strafeKP = 0.05f;
     private double slowFactor = 1;
-    @Override
+
+    private float leftBack = 1f;
+    private float rightBack = -1f;
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -75,6 +77,8 @@ public class ChassisTeleop extends LinearOpMode {
         leftfrontMotor = hardwareMap.dcMotor.get("leftfront");
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
+
+
 
         rightClamp = hardwareMap.servo.get("rightclamp");
         leftClamp = hardwareMap.servo.get("leftclamp");
@@ -126,8 +130,6 @@ public class ChassisTeleop extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-
-
         waitForStart();
         Servo flicker;
         flicker = hardwareMap.servo.get("flick");
@@ -137,7 +139,7 @@ public class ChassisTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // update the current angle
-            Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
             if (gamepad1.left_bumper) {
                 slowFactor = 0.35;
@@ -145,26 +147,33 @@ public class ChassisTeleop extends LinearOpMode {
                 slowFactor = 1;
             }
 
-            if (gamepad2.a) {
-                chime.start();
-            } else if (gamepad2.b) {
-                error.start();
-            }
-
-//haha
+//            double r = -Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+//            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+//            double rightX = gamepad1.right_stick_x;
+//            final double v1 = r * Math.cos(robotAngle) + rightX;
+//            final double v2 = r * Math.sin(robotAngle) - rightX;
+//            final double v3 = r * Math.sin(robotAngle) + rightX;
+//            final double v4 = r * Math.cos(robotAngle) - rightX;
+//
+//            leftfrontMotor.setPower(v1);
+//            rightfrontMotor.setPower(v2);
+//            leftbackMotor.setPower(v3);
+//            rightbackMotor.setPower(v4);
 
             if (gamepad1.dpad_right) {
-                if (firstStrafe)
-                    firstStrafeHeading = angles.firstAngle; // record the original heading
+                if (firstStrafe) {
+                    firstStrafeHeading = angles.firstAngle;
+                    resetEncoders();
+                }   // record the original heading
 
                 firstStrafe = false;
-                strafeRightFor(0.5, angles.firstAngle);
+                strafeRightFor(.75, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
                 if (firstStrafe)
                     firstStrafeHeading = angles.firstAngle;
 
                 firstStrafe = false;
-                strafeLeftFor(0.5, angles.firstAngle);
+                strafeLeftFor(.75, angles.firstAngle);
 
             } else {
                 firstStrafe = true;
@@ -174,6 +183,16 @@ public class ChassisTeleop extends LinearOpMode {
                 leftfrontMotor.setPower(-gamepad1.left_stick_y * slowFactor);
                 leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
             }
+
+           if (gamepad1.a) {
+               leftBack -= 0.1;
+               rightBack += 0.1;
+           }
+
+           if (gamepad1.b) {
+                leftBack += 0.1;
+                rightBack -= 0.1;
+           }
 
             // open: left = 1
             // open: right = 0
@@ -201,16 +220,15 @@ public class ChassisTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_down) {
                 //if (lifterPos > 100)
-                    lifter.setPower(1);
+                lifter.setPower(1);
                 error.start();
             } else if (gamepad2.dpad_up) {
                 //if (lifterPos < LIFTER_MAX)
-                    lifter.setPower(-1);
+                lifter.setPower(-1);
                 error.start();
             } else {
                 lifter.setPower(0);
             }
-
 
 
 
@@ -242,21 +260,26 @@ public class ChassisTeleop extends LinearOpMode {
         float error = firstStrafeHeading - heading;
         float factor = error * strafeKP;
 
-        if (factor < 0)
-            factor = 0.5f;
-        else
-            factor = 1.5f;
+        if (factor > 0.25)
+            factor = 0.25f;
+        else if (factor < -.25)
+            factor = -0.25f;
 
-        leftbackMotor.setPower(power * slowFactor);
-        leftfrontMotor.setPower((-power * slowFactor));// + (error * strafeKP)); // cgabge tgus
-        rightbackMotor.setPower(-power * slowFactor);
-        rightfrontMotor.setPower((power * slowFactor));// + (error * strafeKP)); // affected
+            leftbackMotor.setPower(power - factor);
+            leftfrontMotor.setPower(-power - factor);// + (error * strafeKP)); // cgabge tgus
+            rightbackMotor.setPower(-power + factor);
+            rightfrontMotor.setPower(power + factor);// + (error * strafeKP)); // affected
+            telemetry.addData("whichone: ", "first");
 
         telemetry.addData("error: ", error);
         telemetry.addData("factor: ", factor);
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
         telemetry.addData("firststrafe", firstStrafe);
+        telemetry.addData("left back", leftbackMotor.getCurrentPosition());
+        telemetry.addData("right back", rightbackMotor.getCurrentPosition());
+        telemetry.addData("left front", leftbackMotor.getCurrentPosition());
+        telemetry.addData("right front", leftbackMotor.getCurrentPosition());
         telemetry.update();
     }
 
@@ -274,6 +297,20 @@ public class ChassisTeleop extends LinearOpMode {
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
         telemetry.update();
+    }
+
+    private void resetEncoders() {
+        leftbackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightfrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        sleep(500);
+
+        leftbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }

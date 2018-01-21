@@ -195,6 +195,7 @@ public class AutoBlue extends LinearOpMode {
 
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+        vuforia.setFrameQueueCapacity(2);
 
         VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("FTC-Relic-Targets");
         leftTarget = columnLists.get(2);
@@ -482,18 +483,24 @@ public class AutoBlue extends LinearOpMode {
 
     private void moveToColumn() {
 
+
+
+
         VuforiaLocalizer.CloseableFrame vuforiaFrame = null;
         try {
             vuforiaFrame = vuforia.getFrameQueue().take();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        telemetry.addData("Before Processing", null);
+
+
+
 
         Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
         CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
         CryptoBoxResult boxResult = boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
-        telemetry.addData("After Processing", null);
+
+
         Pictographs pic = Pictographs.LEFT;
         double error;
 
@@ -501,21 +508,22 @@ public class AutoBlue extends LinearOpMode {
            error = boxResult.getLeftx() - openCVFrame.width() / 2;
            telemetry.addData("Error", error);
            telemetry.update();
-            while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+            while (10 < Math.abs(error) && Math.abs(error) < 200 && opModeIsActive()) //TODO Figure out why Error is always possitive
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
 
                 if (error < 0) {
-                    strafeLeftFor(1, 1);
+                    contStrafeRight(0.75);
                 }
 
                 if (error > 0) {
-                    strafeRightFor(1, 1);
+                    contStrafeLeft(0.75);
                 }
             }
+            stopMotors();
 
         }
-//haha
+
         if (pic == Pictographs.CENTER)
         {
             error = boxResult.getMiddlex() - openCVFrame.width() / 2;
@@ -525,11 +533,11 @@ public class AutoBlue extends LinearOpMode {
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
                 if (error < 0) {
-                    strafeLeftFor(1, 1);
+                    strafeRightFor(4, 1);
                 }
 
                 if (error > 0) {
-                    strafeRightFor(1, 1);
+                    strafeLeftFor(4, 1);
                 }
 
             }
@@ -544,29 +552,17 @@ public class AutoBlue extends LinearOpMode {
                     error = boxResult.getMiddlex() - openCVFrame.width() / 2;
 
                     if (error < 0) {
-                        strafeLeftFor(1, 1);
+                        strafeRightFor(4, 1);
                     }
 
                     if (error > 0) {
-                        strafeRightFor(1, 1);
+                        strafeLeftFor(4, 1);
                     }
                 }
             }
 
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -619,6 +615,7 @@ public class AutoBlue extends LinearOpMode {
 
     private void strafeLeftFor(int inches, double speed) {
         encoderDrive(-inches, inches, -inches, inches, speed, true);
+
     }
 
     private void strafeRightFor(int inches, double speed) {
@@ -922,6 +919,32 @@ public class AutoBlue extends LinearOpMode {
         X,
         Y,
         NOTHING
+    }
+    private void contStrafeLeft(double power)
+    {
+        resetMotors();
+        setMotorNormal();
+
+        sleep(500); // wait for it to switch to position YOU NEED THIS OR IT WONT WORK
+
+        leftFrontMotor.setPower(power);
+        leftBackMotor.setPower(-power);
+        rightFrontMotor.setPower(-power);
+        rightBackMotor.setPower(power);
+
+    }
+    private void contStrafeRight(double power)
+    {
+        resetMotors();
+        setMotorNormal();
+
+        sleep(500); // wait for it to switch to position YOU NEED THIS OR IT WONT WORK
+
+        leftFrontMotor.setPower(-power);
+        leftBackMotor.setPower(power);
+        rightFrontMotor.setPower(power);
+        rightBackMotor.setPower(-power);
+
     }
 
 
