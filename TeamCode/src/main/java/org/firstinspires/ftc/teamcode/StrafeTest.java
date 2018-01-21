@@ -63,7 +63,6 @@ public class StrafeTest extends LinearOpMode {
     private final float strafeKP = 0.05f;
     private double slowFactor = 1;
 
-
     private float leftBack = 1f;
     private float rightBack = -1f;
     public void runOpMode() {
@@ -78,6 +77,8 @@ public class StrafeTest extends LinearOpMode {
         leftfrontMotor = hardwareMap.dcMotor.get("leftfront");
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
+
+
 
         rightClamp = hardwareMap.servo.get("rightclamp");
         leftClamp = hardwareMap.servo.get("leftclamp");
@@ -146,40 +147,42 @@ public class StrafeTest extends LinearOpMode {
                 slowFactor = 1;
             }
 
-            double r = -Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-            double rightX = gamepad1.right_stick_x;
-            final double v1 = r * Math.cos(robotAngle) + rightX;
-            final double v2 = r * Math.sin(robotAngle) - rightX;
-            final double v3 = r * Math.sin(robotAngle) + rightX;
-            final double v4 = r * Math.cos(robotAngle) - rightX;
+//            double r = -Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+//            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+//            double rightX = gamepad1.right_stick_x;
+//            final double v1 = r * Math.cos(robotAngle) + rightX;
+//            final double v2 = r * Math.sin(robotAngle) - rightX;
+//            final double v3 = r * Math.sin(robotAngle) + rightX;
+//            final double v4 = r * Math.cos(robotAngle) - rightX;
+//
+//            leftfrontMotor.setPower(v1);
+//            rightfrontMotor.setPower(v2);
+//            leftbackMotor.setPower(v3);
+//            rightbackMotor.setPower(v4);
 
-            leftfrontMotor.setPower(v1);
-            rightfrontMotor.setPower(v2);
-            leftbackMotor.setPower(v3);
-            rightbackMotor.setPower(v4);
+            if (gamepad1.dpad_right) {
+                if (firstStrafe) {
+                    firstStrafeHeading = angles.firstAngle;
+                    resetEncoders();
+                }   // record the original heading
 
-//            if (gamepad1.dpad_right) {
-//                if (firstStrafe)
-//                    firstStrafeHeading = angles.firstAngle; // record the original heading
-//
-//                firstStrafe = false;
-//                strafeRightFor(1, angles.firstAngle);
-//            } else if (gamepad1.dpad_left) {
-//                if (firstStrafe)
-//                    firstStrafeHeading = angles.firstAngle;
-//
-//                firstStrafe = false;
-//                strafeLeftFor(1, angles.firstAngle);
-//
-//            } else {
-//                firstStrafe = true;
-//                rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-//                rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-//
-//                leftfrontMotor.setPower(-gamepad1.left_stick_y * slowFactor);
-//                leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
-//            }
+                firstStrafe = false;
+                strafeRightFor(.75, angles.firstAngle);
+            } else if (gamepad1.dpad_left) {
+                if (firstStrafe)
+                    firstStrafeHeading = angles.firstAngle;
+
+                firstStrafe = false;
+                strafeLeftFor(.75, angles.firstAngle);
+
+            } else {
+                firstStrafe = true;
+                rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+                rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+
+                leftfrontMotor.setPower(-gamepad1.left_stick_y * slowFactor);
+                leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
+            }
 
            if (gamepad1.a) {
                leftBack -= 0.1;
@@ -255,17 +258,17 @@ public class StrafeTest extends LinearOpMode {
 
     private void strafeRightFor(double power, float heading) {
         float error = firstStrafeHeading - heading;
-        float factor = Math.abs(error * strafeKP);
+        float factor = error * strafeKP;
 
-        if (factor < 0.2)
-            factor = 0.2f;
-        else if (factor > 1)
-            factor = 1.0f;
+        if (factor > 0.25)
+            factor = 0.25f;
+        else if (factor < -.25)
+            factor = -0.25f;
 
-            leftbackMotor.setPower(factor);
-            leftfrontMotor.setPower((-power * slowFactor) * 1);// + (error * strafeKP)); // cgabge tgus
-            rightbackMotor.setPower(-factor);
-            rightfrontMotor.setPower((power * slowFactor) * 1);// + (error * strafeKP)); // affected
+            leftbackMotor.setPower(power - factor);
+            leftfrontMotor.setPower(-power - factor);// + (error * strafeKP)); // cgabge tgus
+            rightbackMotor.setPower(-power + factor);
+            rightfrontMotor.setPower(power + factor);// + (error * strafeKP)); // affected
             telemetry.addData("whichone: ", "first");
 
         telemetry.addData("error: ", error);
@@ -273,6 +276,10 @@ public class StrafeTest extends LinearOpMode {
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
         telemetry.addData("firststrafe", firstStrafe);
+        telemetry.addData("left back", leftbackMotor.getCurrentPosition());
+        telemetry.addData("right back", rightbackMotor.getCurrentPosition());
+        telemetry.addData("left front", leftbackMotor.getCurrentPosition());
+        telemetry.addData("right front", leftbackMotor.getCurrentPosition());
         telemetry.update();
     }
 
@@ -290,6 +297,20 @@ public class StrafeTest extends LinearOpMode {
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
         telemetry.update();
+    }
+
+    private void resetEncoders() {
+        leftbackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightfrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        sleep(500);
+
+        leftbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }
