@@ -158,13 +158,13 @@ public class ChassisTeleop extends LinearOpMode {
                     firstStrafeHeading = angles.firstAngle; // record the original heading
 
                 firstStrafe = false;
-                strafeRightFor(1, angles.firstAngle);
+                strafeRightFor(0.5, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
                 if (firstStrafe)
                     firstStrafeHeading = angles.firstAngle;
 
                 firstStrafe = false;
-                strafeLeftFor(1, angles.firstAngle);
+                strafeLeftFor(0.5, angles.firstAngle);
 
             } else {
                 firstStrafe = true;
@@ -213,6 +213,7 @@ public class ChassisTeleop extends LinearOpMode {
 
 
 
+
             //telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
             //telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
 
@@ -241,14 +242,14 @@ public class ChassisTeleop extends LinearOpMode {
         float error = firstStrafeHeading - heading;
         float factor = error * strafeKP;
 
-        if (factor < 0.2)
-            factor = 0.2f;
-        else if (factor > 1)
-            factor = 1.0f;
+        if (factor < 0)
+            factor = 0.5f;
+        else
+            factor = 1.5f;
 
-        leftbackMotor.setPower(factor);
+        leftbackMotor.setPower(power * slowFactor);
         leftfrontMotor.setPower((-power * slowFactor));// + (error * strafeKP)); // cgabge tgus
-        rightbackMotor.setPower(-factor);
+        rightbackMotor.setPower(-power * slowFactor);
         rightfrontMotor.setPower((power * slowFactor));// + (error * strafeKP)); // affected
 
         telemetry.addData("error: ", error);
