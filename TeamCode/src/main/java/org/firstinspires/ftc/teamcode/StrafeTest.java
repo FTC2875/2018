@@ -34,6 +34,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
+@Disabled
 @TeleOp(name="StrafeTest", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class StrafeTest extends LinearOpMode {
 

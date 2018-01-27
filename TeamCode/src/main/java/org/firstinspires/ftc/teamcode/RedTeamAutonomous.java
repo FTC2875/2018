@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -106,8 +107,15 @@ public class RedTeamAutonomous extends LinearOpMode {
     private DcMotor rightFrontMotor;
 
     private Servo jewelFlick;
-    private Servo leftClamp;
-    private Servo rightClamp;
+
+    // grabbing mechanism
+    private CRServo topr;
+    private CRServo topl;
+    private CRServo botr;
+    private CRServo botl;
+    private Servo left;
+    private Servo right;
+    private Servo spin;
 
 
     // AndyMark 20: 560
@@ -155,10 +163,17 @@ public class RedTeamAutonomous extends LinearOpMode {
         rightBackMotor = hardwareMap.dcMotor.get("rightback");
         rightFrontMotor = hardwareMap.dcMotor.get("rightfront");
 
+        left = hardwareMap.servo.get("left");
+        right = hardwareMap.servo.get("right");
+        topr = hardwareMap.crservo.get("topr");
+        topl = hardwareMap.crservo.get("topl");
+        botr = hardwareMap.crservo.get("botr");
+        botl = hardwareMap.crservo.get("botl");
+        spin = hardwareMap.servo.get("spin");
+
+
         jewelFlick = hardwareMap.servo.get("flick");
 
-        rightClamp = hardwareMap.servo.get("rightclamp");
-        leftClamp = hardwareMap.servo.get("leftclamp");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -286,8 +301,6 @@ public class RedTeamAutonomous extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
 
-        leftClamp.setPosition(.4);
-        rightClamp.setPosition(.6);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -374,8 +387,8 @@ public class RedTeamAutonomous extends LinearOpMode {
                 e.printStackTrace();
             }
 
-            forwardFor(-10, 1);
-            strafeRightFor(30, 1);
+            left.setPosition(0.37);
+            right.setPosition(0.6);
         }
     }
 

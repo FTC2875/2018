@@ -59,7 +59,7 @@ import java.io.IOException;
  * Use Android Studios to Cop   y this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-
+@Disabled
 @TeleOp(name="testthing", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class testthing extends LinearOpMode {
 
@@ -70,6 +70,7 @@ public class testthing extends LinearOpMode {
     private CRServo botl;
     private Servo left;
     private Servo right;
+    private Servo spin;
 
 
     //private MediaPlayer smash;
@@ -88,46 +89,45 @@ public class testthing extends LinearOpMode {
         topl = hardwareMap.crservo.get("topl");
         botr = hardwareMap.crservo.get("botr");
         botl = hardwareMap.crservo.get("botl");
+        spin = hardwareMap.servo.get("spin");
         waitForStart();
+
+        boolean attop = true;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
 
-            if(gamepad1.dpad_left){
-                if(left.getPosition()!=0&&right.getPosition()!=1){
-                    left.setPosition(left.getPosition()-.1);
-                    right.setPosition(right.getPosition()+.1);
-                }
-            }
-            else if(gamepad1.dpad_right){
-                left.setPosition(left.getPosition()+.1);
-                right.setPosition(right.getPosition()-.1);
-            }
-            if(gamepad1.y){
-                topr.setPower(1);
+//            if(gamepad1.y){
+//                if(attop == true) {
+//                    lifter.setPower(1);
+//                    spin.setPosition(-1);
+//                    sleep(4000);
+//                    attop = false;
+//                }
+//                else if(attop == false) {
+//                    lifter.setPower(1);
+//                    spin.setPosition(1);
+//                    sleep(4000);
+//                    attop = true;
+//                }
+//
+//            }
+
+            if(gamepad1.right_bumper) {
+                botr.setPower(-1);
+                botl.setPower(-1);
+                topr.setPower(-1);
                 topl.setPower(-1);
             }
-            else if(gamepad1.a) {
-                topr.setPower(-1);
-                topl.setPower(1);
-            }
-            else{
+            else {
+                botr.setPower(0);
+                botl.setPower(0);
                 topr.setPower(0);
                 topl.setPower(0);
             }
-            if(gamepad1.x){
-                botr.setPower(1);
-                botl.setPower(-1);
-            }
-            else if(gamepad1.b){
-                botr.setPower(-1);
-                botl.setPower(1);
-            }
-            else{
-                botr.setPower(0);
-                botl.setPower(0);
-            }
+
+
             telemetry.update();
         }
     }

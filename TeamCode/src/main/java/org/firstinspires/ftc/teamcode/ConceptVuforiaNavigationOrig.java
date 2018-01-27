@@ -83,7 +83,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-
+@Disabled
 @Autonomous(name="Concept: Vuforia Navigation2", group ="Concept")
 //@Disabled
 //This OP mode was made just to test if the 3D model popped up if you just created the XML without 3D models

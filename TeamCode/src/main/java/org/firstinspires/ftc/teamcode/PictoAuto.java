@@ -56,7 +56,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Disabled
 @Autonomous(name="PictoAuto", group ="Concept")
 //@Disabled
 public class PictoAuto extends LinearOpMode {

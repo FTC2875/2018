@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -103,10 +104,18 @@ public class BlueTeamAutonomous extends LinearOpMode {
     private DcMotor leftFrontMotor;
     private DcMotor rightBackMotor;
     private DcMotor rightFrontMotor;
+    private DcMotor lifter;
 
     private Servo jewelFlick;
-    private Servo leftClamp;
-    private Servo rightClamp;
+
+    // grabbing mechanism
+    private CRServo topr;
+    private CRServo topl;
+    private CRServo botr;
+    private CRServo botl;
+    private Servo left;
+    private Servo right;
+    private Servo spin;
 
     // AndyMark 20: 560
     // AndyMark 40: 1120
@@ -151,8 +160,15 @@ public class BlueTeamAutonomous extends LinearOpMode {
 
         jewelFlick = hardwareMap.servo.get("flick");
 
-        rightClamp = hardwareMap.servo.get("rightclamp");
-        leftClamp = hardwareMap.servo.get("leftclamp");
+        left = hardwareMap.servo.get("left");
+        right = hardwareMap.servo.get("right");
+        topr = hardwareMap.crservo.get("topr");
+        topl = hardwareMap.crservo.get("topl");
+        botr = hardwareMap.crservo.get("botr");
+        botl = hardwareMap.crservo.get("botl");
+        spin = hardwareMap.servo.get("spin");
+
+        lifter = hardwareMap.dcMotor.get("lifter");
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
@@ -162,6 +178,11 @@ public class BlueTeamAutonomous extends LinearOpMode {
         rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
         rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+
+        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
 
         // pre set telemetry stuff
         telemetry.setAutoClear(true);
@@ -260,8 +281,10 @@ public class BlueTeamAutonomous extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
 
-        leftClamp.setPosition(.4);
-        rightClamp.setPosition(.6);
+        lifter.setTargetPosition(5000);
+        lifter.setPower(1);
+
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -271,62 +294,6 @@ public class BlueTeamAutonomous extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-//            state.setValue("Jewel Mode");
-//            moveToBall();
-
-            //FOR ENCODERS, INCHES ARE TICKS... STILL NEED TO CONVERT TICKS TO INCHES
-            /*
-            // Autonomous 1
-            forwardFor(4,.8);
-            Pictographs pic = detectPictograph();
-            currentTarget = pic;
-            telemetry.addData("Pic", pic);
-            telemetry.update();
-            forwardFor(-7, .8);
-            strafeLeftFor(12, 90 );
-            rotateLeft(80, .8);
-            */
-            /*
-            //Autonomous 2
-            forwardFor(4,.8);
-            Pictographs pic = detectPictograph();
-            currentTarget = pic;
-            telemetry.addData("Pic", pic);                //realignWithPicto();
-            telemetry.update();
-            forwardFor(-4, .8);
-            strafeLeftFor(18, 100 );
-            */
-            /*
-            //Autonomous 3
-            forwardFor(4,.8);
-            Pictographs pic = detectPictograph();
-            currentTarget = pic;
-            telemetry.addData("Pic", pic);
-            telemetry.update();
-            forwardFor(-7, .8);
-            strafeRightFor(12,90);
-            rotateRight(80, .8);
-            */
-
-            //Autonomous 4
-//            forwardFor(4000,.8);
-//            Pictographs pic = detectPictograph();
-//            currentTarget = pic;
-//            telemetry.addData("Pic", pic);
-//            telemetry.update();
-//
-//            forwardFor(-40000,.8);
-//              telemetry.addLine("Forward done");
-//            strafeRightFor(18,.8);
-//               telemetry.addLine("Strafe done");
-
-//            currentTarget = detectPictograph();
-//            try {
-//                moveToBall();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-
             try {
                 moveToBall();
             } catch (InterruptedException e) {
@@ -335,6 +302,9 @@ public class BlueTeamAutonomous extends LinearOpMode {
 
             telemetry.addData("Picto: ", currentTarget);
             telemetry.update();
+
+            left.setPosition(0.37);
+            right.setPosition(0.6);
 
             break;
 

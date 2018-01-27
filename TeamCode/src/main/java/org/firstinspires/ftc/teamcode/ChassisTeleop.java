@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -43,10 +44,14 @@ public class ChassisTeleop extends LinearOpMode {
     private DcMotor rightbackMotor;
     private DcMotor leftbackMotor;
 
-    private CRServo extender;
+    private CRServo topr;
+    private CRServo topl;
+    private CRServo botr;
+    private CRServo botl;
+    private Servo left;
+    private Servo right;
+    private Servo spin;
 
-    private Servo leftClamp;
-    private Servo rightClamp;
     private double leftPos = 0;
     private double rightPos = 0;
 
@@ -63,6 +68,7 @@ public class ChassisTeleop extends LinearOpMode {
     private final float strafeKP = 0.05f;
     private double slowFactor = 1;
     @Override
+
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -76,10 +82,13 @@ public class ChassisTeleop extends LinearOpMode {
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
 
-        rightClamp = hardwareMap.servo.get("rightclamp");
-        leftClamp = hardwareMap.servo.get("leftclamp");
-
-        extender = hardwareMap.crservo.get("extender");
+        left = hardwareMap.servo.get("left");
+        right = hardwareMap.servo.get("right");
+        topr = hardwareMap.crservo.get("topr");
+        topl = hardwareMap.crservo.get("topl");
+        botr = hardwareMap.crservo.get("botr");
+        botl = hardwareMap.crservo.get("botl");
+        spin = hardwareMap.servo.get("spin");
 
         lifter = hardwareMap.dcMotor.get("lifter");
         // lifterButton = hardwareMap.digitalChannel.get("button");
@@ -104,12 +113,9 @@ public class ChassisTeleop extends LinearOpMode {
 //        leftClamp.setPosition(1);
 //        rightClamp.setPosition(0);
 
-        leftPos = leftClamp.getPosition();
-        rightPos = rightClamp.getPosition();
-
 
         lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lifter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         MediaPlayer error = MediaPlayer.create(hardwareMap.appContext, R.raw.errormessage);
         MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
@@ -133,12 +139,16 @@ public class ChassisTeleop extends LinearOpMode {
         flicker = hardwareMap.servo.get("flick");
         flicker.setPosition(flickUpPosition);
 
+        boolean attop = true;
+
         player.start();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // update the current angle
             Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
+            left.setPosition(0.37);
+            right.setPosition(0.6);
             if (gamepad1.left_bumper) {
                 slowFactor = 0.35;
             } else {
@@ -158,13 +168,13 @@ public class ChassisTeleop extends LinearOpMode {
                     firstStrafeHeading = angles.firstAngle; // record the original heading
 
                 firstStrafe = false;
-                strafeRightFor(0.5, angles.firstAngle);
+                strafeRightFor(0.8, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
                 if (firstStrafe)
                     firstStrafeHeading = angles.firstAngle;
 
                 firstStrafe = false;
-                strafeLeftFor(0.5, angles.firstAngle);
+                strafeLeftFor(0.8, angles.firstAngle);
 
             } else {
                 firstStrafe = true;
@@ -177,36 +187,23 @@ public class ChassisTeleop extends LinearOpMode {
 
             // open: left = 1
             // open: right = 0
-            if (gamepad2.x) { // close
-                if (rightPos < 1.0)
-                    rightPos += 0.05;
 
-                if (leftPos > 0.0)
-                    leftPos -= 0.05;
-            } else if (gamepad2.b) { // open
-                if (rightPos > 0.3)
-                    rightPos -= 0.05;
 
-                if (leftPos < .7)
-                    leftPos += 0.05;
-            }
 
-            if (gamepad2.y) {
-                extender.setPower(1);
-            } else if (gamepad2.a) {
-                extender.setPower(-1);
-            } else {
-                extender.setPower(0);
-            }
-
-            if (gamepad2.dpad_down) {
-                //if (lifterPos > 100)
-                    lifter.setPower(1);
-                error.start();
-            } else if (gamepad2.dpad_up) {
+            if (gamepad2.dpad_up) {
+                lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                //if (lifterPos > 100)r
+                lifter.setPower(1);
+            } else if (gamepad2.dpad_down) {
                 //if (lifterPos < LIFTER_MAX)
-                    lifter.setPower(-1);
-                error.start();
+                lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                lifter.setPower(-0.5);
+
+                telemetry.addData("Position: ", lifter.getCurrentPosition());
+                telemetry.update();
             } else {
                 lifter.setPower(0);
             }
@@ -220,21 +217,55 @@ public class ChassisTeleop extends LinearOpMode {
             //telemetry.addData("Right Position: ", rightClamp.getPower());
 
 
-            rightClamp.setPosition(rightPos);
-            leftClamp.setPosition(leftPos);
+
             lifterPos = lifter.getCurrentPosition();
 
-//            telemetry.addData("Left Clamp: ", leftPos);
-//            telemetry.addData("Right Clamp: ", rightPos);
-//            telemetry.addData("Lifter Pos: ", lifterPos);
-//
-//            telemetry.addData("Heading:", angles.firstAngle);
-//            telemetry.addData("Roll:", angles.secondAngle);
-//            telemetry.addData("Pitch:", angles.thirdAngle);
-//            telemetry.addData("X Accel", imu.getOverallAcceleration().xAccel);
-//            telemetry.addData("Y Accel", imu.getOverallAcceleration().yAccel);
-//
-//            telemetry.update();
+            if (gamepad2.b) {
+                resetLifterMotor();
+                lifter.setTargetPosition(5000);
+                lifter.setPower(1);
+            }
+
+            if (gamepad2.x) {
+                resetLifterMotor();
+                lifter.setTargetPosition(10000);
+                lifter.setPower(1);
+            }
+
+            if(gamepad2.y){
+                resetLifterMotor();
+
+                lifter.setTargetPosition(20000);
+                lifter.setPower(1);
+
+                if (attop) {
+                    spin.setPosition(1);
+                    attop = false;
+                } else {
+                    spin.setPosition(-1);
+                    attop = true;
+                }
+            }
+
+            if(gamepad2.right_bumper) {
+                botr.setPower(1);
+                botl.setPower(-1);
+                topr.setPower(-1);
+                topl.setPower(1);
+            } else if (gamepad2.left_bumper) {
+                botr.setPower(-1);
+                botl.setPower(1);
+                topr.setPower(1);
+                topl.setPower(-1);
+            }
+            else {
+                botr.setPower(0);
+                botl.setPower(0);
+                topr.setPower(0);
+                topl.setPower(0);
+            }
+
+
         }
     }
 
@@ -265,15 +296,20 @@ public class ChassisTeleop extends LinearOpMode {
         float factor = (error * strafeKP) + 1;
 
         leftbackMotor.setPower(-power * slowFactor);
-        leftfrontMotor.setPower((power * slowFactor) * factor);// + (error * strafeKP));
+        leftfrontMotor.setPower((power * slowFactor));// + (error * strafeKP));
         rightbackMotor.setPower(power * slowFactor);
-        rightfrontMotor.setPower((-power * slowFactor) * factor);// + (error * strafeKP));
+        rightfrontMotor.setPower((-power * slowFactor));// + (error * strafeKP));
 
         telemetry.addData("error: ", error);
         telemetry.addData("factor: ", factor);
         telemetry.addData("heading: ", heading);
         telemetry.addData("first heading: ", firstStrafeHeading);
         telemetry.update();
+    }
+
+    private void resetLifterMotor() {
+        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
 }
