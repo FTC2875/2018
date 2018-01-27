@@ -95,20 +95,22 @@ public class testthing extends LinearOpMode {
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
 
             if(gamepad1.dpad_left){
-                left.setPosition(0);
-                right.setPosition(0);
+                if(left.getPosition()!=0&&right.getPosition()!=1){
+                    left.setPosition(left.getPosition()-.1);
+                    right.setPosition(right.getPosition()+.1);
+                }
             }
             else if(gamepad1.dpad_right){
-                left.setPosition(1);
-                right.setPosition(1);
+                left.setPosition(left.getPosition()+.1);
+                right.setPosition(right.getPosition()-.1);
             }
             if(gamepad1.y){
                 topr.setPower(1);
-                topl.setPower(1);
+                topl.setPower(-1);
             }
             else if(gamepad1.a) {
                 topr.setPower(-1);
-                topl.setPower(-1);
+                topl.setPower(1);
             }
             else{
                 topr.setPower(0);
@@ -116,11 +118,11 @@ public class testthing extends LinearOpMode {
             }
             if(gamepad1.x){
                 botr.setPower(1);
-                botl.setPower(1);
+                botl.setPower(-1);
             }
             else if(gamepad1.b){
                 botr.setPower(-1);
-                botl.setPower(-1);
+                botl.setPower(1);
             }
             else{
                 botr.setPower(0);
