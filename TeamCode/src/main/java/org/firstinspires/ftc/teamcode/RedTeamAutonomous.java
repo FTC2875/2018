@@ -46,6 +46,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.vuforia.CylinderTargetResult;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -90,7 +91,7 @@ import ftc.vision.FrameGrabber;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoBlue", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Autonomous(name="RedTeamAutonomous", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class RedTeamAutonomous extends LinearOpMode {
     public final String TAG = "AutoBlue";
 
@@ -108,6 +109,7 @@ public class RedTeamAutonomous extends LinearOpMode {
     private Servo leftClamp;
     private Servo rightClamp;
 
+
     // AndyMark 20: 560
     // AndyMark 40: 1120
     // AndyMark 60: 1680
@@ -118,7 +120,7 @@ public class RedTeamAutonomous extends LinearOpMode {
     private static final double     DRIVE_GEAR_REDUCTION    = 1.5 ;     // This is < 1.0 if geared UP
     private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     private static final double     COUNTS_PER_INCH         = 118;//(COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-    // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
+           // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
 
     // telemetry
     private Telemetry.Item debug;
@@ -136,7 +138,11 @@ public class RedTeamAutonomous extends LinearOpMode {
     private final float strafeKP = 0.5f;
 
     private final double jewelStickDown = 1;
-    private final double jewelStickUp = 0.3;
+    private final double jewelStickUp = 0;
+
+
+
+
 
     @Override
     public void runOpMode() {
@@ -168,86 +174,106 @@ public class RedTeamAutonomous extends LinearOpMode {
         debug = telemetry.addData("Debug", 0);
         Telemetry.Item state = telemetry.addData("State", "Init");
 
-        ////////////////////////////////////////////////////
-        //                                                //
-        //                                                //
-        //                 Vuforia Stuff                  //
-        //                                                //
-        //                                                //
-        ////////////////////////////////////////////////////
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        this.vuforia = new VuforiaLocalizerImpl(parameters);
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+//        ////////////////////////////////////////////////////
+//        //                                                //
+//        //                                                //
+//        //                 Vuforia Stuff                  //
+//        //                                                //
+//        //                                                //
+//        ////////////////////////////////////////////////////
+//
+//
+//        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(com.qualcomm.ftcrobotcontroller.R.id.cameraMonitorViewId);
+//        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        //Created these two lines to see if they work
+//
+//
+//        parameters.vuforiaLicenseKey = "ARkaptL/////AAAAGZh9qW5VjUFXqr6Ifl7pO9wYYX/eCbWeNSabmx/9Pyp8LKUH2PgfYHhy5ctv9/d2lZRy4L3KjY6lVgWxezb0lJfZFzmGu3Seuxtdo9/PnBvu0AM6yRptIOR3m79S9K78FGG9aroK9d3KS+WcRBIg7WJYSboPDxnjPlwLT9qSaUFLvi4p9LC1X24ITUHE6nUve2aHM4zQ8i2KQ7hUiFQ9R8dUuk8lfjw4E/bcVWfr8vVMNZx8o/jsQPl5QxH2lth52jQw1tbFVixp4zNJ0PvicmDQftXHIWnGag9NBIi5jOJmUBcfFr22EwCnxQJQ7ZkS4ydZe3uhGtrzYSL5ymsN6FnORvcE2GTrF0XaZpa0Saon\n";
+//        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+//        //this.vuforia = new VuforiaLocalizerImpl(parameters);
+//
+//        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+//        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+//        vuforia.setFrameQueueCapacity(2);
+//
+//        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("FTC-Relic-Targets");
+//        leftTarget = columnLists.get(2);
+//        leftTarget.setName("leftTarget");  // Left
+//
+//        centerTarget  = columnLists.get(1);
+//        centerTarget.setName("centerTarget");  // Center
+//
+//        rightTarget  = columnLists.get(0);
+//        rightTarget.setName("rightTarget");  // Right
+//
+//
+//        allTrackables = new ArrayList<VuforiaTrackable>();
+//        allTrackables.addAll(columnLists);
+//
+//
+//        float mmPerInch        = 25.4f;
+//        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
+//        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+//
+//
+//        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the RED WALL. Our translation here
+//                is a negative translation in X.*/
+//                .translation( 0, 0, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        leftTarget.setLocation(leftTargetLocationOnField);
+//        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
+//
+//
+//        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the Blue Audience wall.
+//                Our translation here is a positive translation in Y.*/
+//                .translation(0, 0, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        centerTarget.setLocation(centerTargetLocationOnField);
+//        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
+//
+//
+//        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the Blue Audience wall.
+//                Our translation here is a positive translation in Y.*/
+//                .translation(0, 0, 0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        rightTarget.setLocation(rightTargetLocationOnField);
+//        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
+//
+//
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(0,0,0)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        AxesReference.EXTRINSIC, AxesOrder.YZY,
+//                        AngleUnit.DEGREES, 0, 0, 0));
+//        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
+//
+//
+//        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
-        VuforiaTrackables columnLists = this.vuforia.loadTrackablesFromAsset("Cropped_targets2");
-        leftTarget = columnLists.get(2);
-        leftTarget.setName("leftTarget");  // Left
-
-        centerTarget  = columnLists.get(1);
-        centerTarget.setName("centerTarget");  // Center
-
-        rightTarget  = columnLists.get(0);
-        rightTarget.setName("rightTarget");  // Right
+        ////////////////////////////////////////////////////////////////
+        ////                                                        ////
+        ////                                                        ////
+        ////                End Vuforia Init Stuff                  ////
+        ////                                                        ////
+        ////                                                        ////
+        ////////////////////////////////////////////////////////////////
 
 
-        allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(columnLists);
-
-
-        float mmPerInch        = 25.4f;
-        float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
-        //float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
-
-
-        OpenGLMatrix leftTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the RED WALL. Our translation here
-                is a negative translation in X.*/
-                .translation( 0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        leftTarget.setLocation(leftTargetLocationOnField);
-        RobotLog.ii(TAG, "Left Target=%s", format(leftTargetLocationOnField));
-
-
-        OpenGLMatrix centerTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        centerTarget.setLocation(centerTargetLocationOnField);
-        RobotLog.ii(TAG, "Center Target=%s", format(centerTargetLocationOnField));
-
-
-        OpenGLMatrix rightTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0, 0, 0)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        rightTarget.setLocation(rightTargetLocationOnField);
-        RobotLog.ii(TAG, "Right Target=%s", format(rightTargetLocationOnField));
-
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(0,0,0)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.YZY,
-                        AngleUnit.DEGREES, 0, 0, 0));
-        RobotLog.ii(TAG, "phone=%s", format(phoneLocationOnRobot));
-
-
-        ((VuforiaTrackableDefaultListener)leftTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)centerTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)rightTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
         // test imu stuff
         BNO055IMU.Parameters IMUParameters = new BNO055IMU.Parameters();
@@ -327,17 +353,29 @@ public class RedTeamAutonomous extends LinearOpMode {
 //                e.printStackTrace();
 //            }
 
+//            try {
+//                moveToBall();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            telemetry.addData("Picto: ", currentTarget);
+//            telemetry.update();
+//
+////            sleep(500);
+////            jewelFlick.setPosition(jewelStickUp);
+//            jewelFlick.setPosition(0.3);
+//            break;
+//            moveToColumn();
+
             try {
                 moveToBall();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            telemetry.addData("Picto: ", currentTarget);
-            telemetry.update();
-
-            break;
-
+            forwardFor(-10, 1);
+            strafeRightFor(30, 1);
         }
     }
 
@@ -372,8 +410,7 @@ public class RedTeamAutonomous extends LinearOpMode {
 
         do {
             System.out.println("Entered Loop");
-            //VuforiaLocalizer.CloseableFrame vuforiaFrame = vuforia.getFrameQueue().take();
-            //Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+
             frame.grabSingleFrame();
 
             while (!frame.isResultReady()) {
@@ -403,42 +440,26 @@ public class RedTeamAutonomous extends LinearOpMode {
             telemetry.update();
 
             if (result.isFoundResult()) {
-                telemetry.addData("Blue: ", result.getBlue().getCenterX());
-                telemetry.addData("Red: ", result.getRed().getCenterX());
-                if (result.getLeftJewel().getColor() == BallColor.RED) { // left: blue     right: red
-                    telemetry.addData("Left: ", "red");
-                    telemetry.addData("Right: ", "blue");
+                telemetry.addData("Blue: ", result.getBlue().getCenterX()); //243
+                telemetry.addData("Red: ", result.getRed().getCenterX());   //222
+                if (result.getLeftJewel().getColor() == BallColor.BLUE) { // left: blue     right: red
+                    telemetry.addData("Left: ", "blue");
+                    telemetry.addData("Right: ", "red");
                     telemetry.addData("ball", "will rotate left");
                     telemetry.update();
 
                     jewelFlick.setPosition(jewelStickDown);
                     sleep(1000);
                     rotateLeft(500, 1);
-
-                    // park
-                    sleep(1000);
-                    jewelFlick.setPosition(jewelStickUp);
-//                    forwardFor(-100, 1);
-//                    sleep(1000);
-//                    rotateRight(800, 1);
-//                    sleep(1000);
-//                    forwardFor(150, 1);
                 } else {                                                  // left: red      right: blue
-                    telemetry.addData("Left: ", "blue");
-                    telemetry.addData("Right: ", "red");
+                    telemetry.addData("Left: ", "red");
+                    telemetry.addData("Right: ", "blue");
                     telemetry.addData("ball", "will rotate right");
                     telemetry.update();
 
                     jewelFlick.setPosition(jewelStickDown);
                     sleep(1000);
                     rotateRight(500, 1);
-
-                    // park
-                    sleep(1000);
-                    jewelFlick.setPosition(jewelStickUp);
-//                    rotateRight(1000, 1);
-//                    sleep(1000);
-//                    forwardFor(40, 1);
                 }
             }
 //
@@ -468,6 +489,92 @@ public class RedTeamAutonomous extends LinearOpMode {
             break;
         } while (opModeIsActive()); // when we are close enough get outta here area < 6000
     }
+
+    private void moveToColumn() {
+
+
+
+
+        VuforiaLocalizer.CloseableFrame vuforiaFrame = null;
+        try {
+            vuforiaFrame = vuforia.getFrameQueue().take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        Mat openCVFrame = vuforiaToOpenCV(vuforiaFrame);
+        CryptoBoxProcessor boxProcessor = new CryptoBoxProcessor();
+        CryptoBoxResult boxResult = boxProcessor.process(System.currentTimeMillis(), openCVFrame, true).getResult();
+
+
+        Pictographs pic = Pictographs.LEFT;
+        double error;
+
+        if (pic == Pictographs.LEFT) {
+           error = boxResult.getLeftx() - openCVFrame.width() / 2;
+           telemetry.addData("Error", error);
+           telemetry.update();
+            while (10 < Math.abs(error) && Math.abs(error) < 200 && opModeIsActive()) //TODO Figure out why Error is always possitive
+            {
+                error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+
+                if (error < 0) {
+                    contStrafeRight(0.75);
+                }
+
+                if (error > 0) {
+                    contStrafeLeft(0.75);
+                }
+            }
+            stopMotors();
+
+        }
+
+        if (pic == Pictographs.CENTER)
+        {
+            error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+            telemetry.addData("Error", error);
+            telemetry.update();
+            while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+            {
+                error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+                if (error < 0) {
+                    strafeRightFor(4, 1);
+                }
+
+                if (error > 0) {
+                    strafeLeftFor(4, 1);
+                }
+
+            }
+
+            if (pic == Pictographs.RIGHT)
+            {
+                error = boxResult.getRightx() - openCVFrame.width() / 2;
+                telemetry.addData("Error", error);
+                telemetry.update();
+                while (0 < Math.abs(error) && Math.abs(error) < 4) //TODO Give tolerance to this threshold
+                {
+                    error = boxResult.getMiddlex() - openCVFrame.width() / 2;
+
+                    if (error < 0) {
+                        strafeRightFor(4, 1);
+                    }
+
+                    if (error > 0) {
+                        strafeLeftFor(4, 1);
+                    }
+                }
+            }
+
+        }
+    }
+
+
+
 
     private void setMotorNormal() {
         leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -517,6 +624,7 @@ public class RedTeamAutonomous extends LinearOpMode {
 
     private void strafeLeftFor(int inches, double speed) {
         encoderDrive(-inches, inches, -inches, inches, speed, true);
+
     }
 
     private void strafeRightFor(int inches, double speed) {
@@ -566,10 +674,10 @@ public class RedTeamAutonomous extends LinearOpMode {
 
             if (robotLocationTransform != null) {
                 lastLocation = robotLocationTransform;
-                //  System.out.println(lastLocation.getData());
-                // telemetry.addData("lastLocation", "success");
+              //  System.out.println(lastLocation.getData());
+               // telemetry.addData("lastLocation", "success");
             } else if (lastLocation == null) {
-                // telemetry.addData("lastLocation", "fail");
+               // telemetry.addData("lastLocation", "fail");
                 continue;
             }
 
@@ -694,7 +802,7 @@ public class RedTeamAutonomous extends LinearOpMode {
         float originalHeading;
 
         // hang until they're done
-        while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy()) { // TODO add in front motors
+        while (leftBackMotor.isBusy() && rightBackMotor.isBusy() && leftFrontMotor.isBusy() && rightFrontMotor.isBusy() && opModeIsActive()) { // TODO add in front motors
             Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
             if (isStrafing) {
@@ -747,18 +855,18 @@ public class RedTeamAutonomous extends LinearOpMode {
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 110; // "center" value for the ball
 
-        int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
+                int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
 
-        if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-            strafeRightFor(1, 0.7);
-            telemetry.addData("Status", "Too much left");
-        } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-            strafeLeftFor(1, 0.7);
-            telemetry.addData("Status", "Too much right");
-        } else {
-            forwardFor(3, 0.7); // GO GO GO
-            telemetry.addData("Status", "go go go");
-        }
+                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+                    strafeRightFor(1, 0.7);
+                    telemetry.addData("Status", "Too much left");
+                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+                    strafeLeftFor(1, 0.7);
+                    telemetry.addData("Status", "Too much right");
+                } else {
+                    forwardFor(3, 0.7); // GO GO GO
+                    telemetry.addData("Status", "go go go");
+                }
 
     }
 
@@ -820,6 +928,32 @@ public class RedTeamAutonomous extends LinearOpMode {
         X,
         Y,
         NOTHING
+    }
+    private void contStrafeLeft(double power)
+    {
+        resetMotors();
+        setMotorNormal();
+
+        sleep(500); // wait for it to switch to position YOU NEED THIS OR IT WONT WORK
+
+        leftFrontMotor.setPower(power);
+        leftBackMotor.setPower(-power);
+        rightFrontMotor.setPower(-power);
+        rightBackMotor.setPower(power);
+
+    }
+    private void contStrafeRight(double power)
+    {
+        resetMotors();
+        setMotorNormal();
+
+        sleep(500); // wait for it to switch to position YOU NEED THIS OR IT WONT WORK
+
+        leftFrontMotor.setPower(-power);
+        leftBackMotor.setPower(power);
+        rightFrontMotor.setPower(power);
+        rightBackMotor.setPower(-power);
+
     }
 
 
