@@ -34,7 +34,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Disabled
 @TeleOp(name="StrafeTest", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 public class StrafeTest extends LinearOpMode {
 
@@ -148,42 +147,42 @@ public class StrafeTest extends LinearOpMode {
                 slowFactor = 1;
             }
 
-//            double r = -Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-//            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-//            double rightX = gamepad1.right_stick_x;
-//            final double v1 = r * Math.cos(robotAngle) + rightX;
-//            final double v2 = r * Math.sin(robotAngle) - rightX;
-//            final double v3 = r * Math.sin(robotAngle) + rightX;
-//            final double v4 = r * Math.cos(robotAngle) - rightX;
+            double r = -Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+            double rightX = gamepad1.right_stick_x;
+            final double v1 = r * Math.cos(robotAngle) + rightX;
+            final double v2 = r * Math.sin(robotAngle) - rightX;
+            final double v3 = r * Math.sin(robotAngle) + rightX;
+            final double v4 = r * Math.cos(robotAngle) - rightX;
+
+            leftfrontMotor.setPower(v1);
+            rightfrontMotor.setPower(v2);
+            leftbackMotor.setPower(v3);
+            rightbackMotor.setPower(v4);
 //
-//            leftfrontMotor.setPower(v1);
-//            rightfrontMotor.setPower(v2);
-//            leftbackMotor.setPower(v3);
-//            rightbackMotor.setPower(v4);
-
-            if (gamepad1.dpad_right) {
-                if (firstStrafe) {
-                    firstStrafeHeading = angles.firstAngle;
-                    resetEncoders();
-                }   // record the original heading
-
-                firstStrafe = false;
-                strafeRightFor(.75, angles.firstAngle);
-            } else if (gamepad1.dpad_left) {
-                if (firstStrafe)
-                    firstStrafeHeading = angles.firstAngle;
-
-                firstStrafe = false;
-                strafeLeftFor(.75, angles.firstAngle);
-
-            } else {
-                firstStrafe = true;
-                rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-                rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-
-                leftfrontMotor.setPower(-gamepad1.left_stick_y * slowFactor);
-                leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
-            }
+//            if (gamepad1.dpad_right) {
+//                if (firstStrafe) {
+//                    firstStrafeHeading = angles.firstAngle;
+//                    resetEncoders();
+//                }   // record the original heading
+//
+//                firstStrafe = false;
+//                strafeRightFor(.75, angles.firstAngle);
+//            } else if (gamepad1.dpad_left) {
+//                if (firstStrafe)
+//                    firstStrafeHeading = angles.firstAngle;
+//
+//                firstStrafe = false;
+//                strafeLeftFor(.75, angles.firstAngle);
+//
+//            } else {
+//                firstStrafe = true;
+//                rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+//                rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
+//
+//                leftfrontMotor.setPower(-gamepad1.left_stick_y * slowFactor);
+//                leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
+//            }
 
            if (gamepad1.a) {
                leftBack -= 0.1;

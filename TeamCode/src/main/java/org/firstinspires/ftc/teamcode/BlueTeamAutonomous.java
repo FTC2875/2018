@@ -174,10 +174,10 @@ public class BlueTeamAutonomous extends LinearOpMode {
         // "Reverse" the motor that runs backwards when connected directly to the battery
         // leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
 
         lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -280,11 +280,6 @@ public class BlueTeamAutonomous extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
-
-        lifter.setTargetPosition(5000);
-        lifter.setPower(1);
-
-
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -668,10 +663,8 @@ public class BlueTeamAutonomous extends LinearOpMode {
             Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
             if (isStrafing) {
-                if (firstPass)
-                    originalHeading = angles.firstAngle;
-
-
+                leftFrontMotor.setPower(power * 0.75);
+                rightFrontMotor.setPower(power * 0.75);
             }
 
             telemetry.addData("Left Front Current: ", leftFrontMotor.getCurrentPosition());

@@ -92,8 +92,8 @@ import ftc.vision.FrameGrabber;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="RedTeamAutonomous", group="Linear Opmode")  // @Autonomous(...) is the other common choice
-public class RedTeamAutonomous extends LinearOpMode {
+@Autonomous(name="RedTeamMoveAutonomous", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+public class RedTeamLeftAuto extends LinearOpMode {
     public final String TAG = "AutoBlue";
 
     /* Declare OpMode members. */
@@ -128,7 +128,7 @@ public class RedTeamAutonomous extends LinearOpMode {
     private static final double     DRIVE_GEAR_REDUCTION    = 1.5 ;     // This is < 1.0 if geared UP
     private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     private static final double     COUNTS_PER_INCH         = 118;//(COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-           // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
+    // (WHEEL_DIAMETER_INCHES * Math.PI); // circumference
 
     // telemetry
     private Telemetry.Item debug;
@@ -148,7 +148,7 @@ public class RedTeamAutonomous extends LinearOpMode {
     private final double jewelStickDown = 1;
     private final double jewelStickUp = 0;
 
-    private MediaPlayer music;
+
 
 
 
@@ -390,6 +390,9 @@ public class RedTeamAutonomous extends LinearOpMode {
             left.setPosition(0.37);
             right.setPosition(0.6);
 
+            strafeLeftFor(35, 1);
+            forwardFor(40, 1);
+
             break;
         }
     }
@@ -476,6 +479,9 @@ public class RedTeamAutonomous extends LinearOpMode {
                     sleep(1000);
                     rotateRight(500, 1);
                 }
+
+                sleep(1000);
+                jewelFlick.setPosition(jewelStickUp);
             }
 //
 ////            if (result.isFoundResult()) { // make sure something is found
@@ -529,9 +535,9 @@ public class RedTeamAutonomous extends LinearOpMode {
         double error;
 
         if (pic == Pictographs.LEFT) {
-           error = boxResult.getLeftx() - openCVFrame.width() / 2;
-           telemetry.addData("Error", error);
-           telemetry.update();
+            error = boxResult.getLeftx() - openCVFrame.width() / 2;
+            telemetry.addData("Error", error);
+            telemetry.update();
             while (10 < Math.abs(error) && Math.abs(error) < 200 && opModeIsActive()) //TODO Figure out why Error is always possitive
             {
                 error = boxResult.getMiddlex() - openCVFrame.width() / 2;
@@ -689,10 +695,10 @@ public class RedTeamAutonomous extends LinearOpMode {
 
             if (robotLocationTransform != null) {
                 lastLocation = robotLocationTransform;
-              //  System.out.println(lastLocation.getData());
-               // telemetry.addData("lastLocation", "success");
+                //  System.out.println(lastLocation.getData());
+                // telemetry.addData("lastLocation", "success");
             } else if (lastLocation == null) {
-               // telemetry.addData("lastLocation", "fail");
+                // telemetry.addData("lastLocation", "fail");
                 continue;
             }
 
@@ -868,18 +874,18 @@ public class RedTeamAutonomous extends LinearOpMode {
         final int CENTER_POSITION_THRESH = 20; // give some threshold for center
         final int CENTER_POSITION = 110; // "center" value for the ball
 
-                int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
+        int offset = CENTER_POSITION - center; // "error" amount; negative = too left, positive = too right
 
-                if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
-                    strafeRightFor(1, 0.7);
-                    telemetry.addData("Status", "Too much left");
-                } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
-                    strafeLeftFor(1, 0.7);
-                    telemetry.addData("Status", "Too much right");
-                } else {
-                    forwardFor(3, 0.7); // GO GO GO
-                    telemetry.addData("Status", "go go go");
-                }
+        if (offset < 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the left
+            strafeRightFor(1, 0.7);
+            telemetry.addData("Status", "Too much left");
+        } else if (offset > 0 && Math.abs(offset) > CENTER_POSITION_THRESH) { // too much to the right
+            strafeLeftFor(1, 0.7);
+            telemetry.addData("Status", "Too much right");
+        } else {
+            forwardFor(3, 0.7); // GO GO GO
+            telemetry.addData("Status", "go go go");
+        }
 
     }
 

@@ -48,9 +48,11 @@ public class ChassisTeleop extends LinearOpMode {
     private CRServo topl;
     private CRServo botr;
     private CRServo botl;
-    private Servo left;
-    private Servo right;
+    private Servo leftBottom;
+    private Servo rightBottom;
     private Servo spin;
+    private Servo leftTop;
+    private Servo rightTop;
 
     private double leftPos = 0;
     private double rightPos = 0;
@@ -62,11 +64,16 @@ public class ChassisTeleop extends LinearOpMode {
 
     private BNO055IMU imu;
     private boolean firstStrafe  = true;
+    private boolean spinDebouncer= false;
+
     private float firstStrafeHeading;
 
     private final double flickUpPosition = 0.2;
     private final float strafeKP = 0.05f;
     private double slowFactor = 1;
+
+    private boolean relicMode = false;
+
     @Override
 
     public void runOpMode() {
@@ -82,8 +89,10 @@ public class ChassisTeleop extends LinearOpMode {
         rightbackMotor = hardwareMap.dcMotor.get("rightback");
         leftbackMotor = hardwareMap.dcMotor.get("leftback");
 
-        left = hardwareMap.servo.get("left");
-        right = hardwareMap.servo.get("right");
+        leftBottom = hardwareMap.servo.get("leftbottom");
+        rightBottom = hardwareMap.servo.get("rightbottom");
+        rightTop = hardwareMap.servo.get("righttop");
+        leftTop= hardwareMap.servo.get("lefttop");
         topr = hardwareMap.crservo.get("topr");
         topl = hardwareMap.crservo.get("topl");
         botr = hardwareMap.crservo.get("botr");
@@ -100,10 +109,10 @@ public class ChassisTeleop extends LinearOpMode {
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
-        leftfrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        rightfrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        leftbackMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftfrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightfrontMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        leftbackMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
 
         //smash = MediaPlayer.create(hardwareMap.appContext, R.raw.smash);
         //running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
@@ -114,12 +123,13 @@ public class ChassisTeleop extends LinearOpMode {
 //        rightClamp.setPosition(0);
 
 
-        lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lifter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         MediaPlayer error = MediaPlayer.create(hardwareMap.appContext, R.raw.errormessage);
         MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
         MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.warningmessage);
+        MediaPlayer smash = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
 
         // rev imu stuff
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -138,133 +148,206 @@ public class ChassisTeleop extends LinearOpMode {
         Servo flicker;
         flicker = hardwareMap.servo.get("flick");
         flicker.setPosition(flickUpPosition);
+        float left_y = 0;
+        float right_y = 0;
 
         boolean attop = true;
+        if (spin.getPosition() > 0.5)
+            attop = false;
+        if (attop)
+            spin.setPosition(0);
+        else
+            spin.setPosition(1);
 
-        player.start();
+
+        // collect
+        botr.setPower(1);
+        botl.setPower(-1);
+        topr.setPower(-1);
+        topl.setPower(1);
+        sleep(300);
+
+        smash.start();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // update the current angle
             Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Z: Heading Y: Roll X: Pitch
 
-            left.setPosition(0.37);
-            right.setPosition(0.6);
-            if (gamepad1.left_bumper) {
+
+            // controls for controlling top and bottom arms2
+            if (gamepad2.dpad_right || gamepad2.dpad_left || gamepad2.left_stick_x < -.1 || gamepad2.left_stick_x > .1 || gamepad2.right_stick_x < -.1 || gamepad2.right_stick_x > .1) {
+                if (gamepad2.dpad_right) { // bring top out
+                    leftTop.setPosition(0.0);
+                    rightTop.setPosition(1.0);
+
+                } else if (gamepad2.dpad_left) {  // bring top in
+                    leftTop.setPosition(0.55);
+                    rightTop.setPosition(0.35);
+                }
+
+                if (gamepad2.left_stick_x < -.1 || gamepad2.right_stick_x < -.1) { // bring bottom in
+                    leftBottom.setPosition(0.35);
+                    rightBottom.setPosition(0.55);
+
+                    telemetry.addData("Left Stick: ", gamepad2.left_stick_x);
+                } else if (gamepad2.right_stick_x > 0.1 || gamepad2.left_stick_x > 0.1) { // bring bottom out
+                    leftBottom.setPosition(1.0);
+                    rightBottom.setPosition(0.0);
+                }
+
+
+            } else {    // controls for both of the arms
+
+                if (gamepad2.b) { // Open grippers
+                    leftTop.setPosition(0.0);
+                    leftBottom.setPosition(1.0);
+
+                    rightTop.setPosition(1.0); // fix the top
+                    rightBottom.setPosition(0.0);
+                } else if (gamepad1.right_bumper) {
+                    leftBottom.setPosition(0.35);
+                    leftTop.setPosition(0.55);
+
+                    rightBottom.setPosition(0.55);
+                    rightTop.setPosition(0.35);
+                } else {
+                    leftBottom.setPosition(0.55);
+                    leftTop.setPosition(0.31);
+
+                    rightTop.setPosition(0.59);
+                    rightBottom.setPosition(0.35);
+                }
+            }
+
+
+            if (gamepad1.left_bumper) { // Slow mode driving
                 slowFactor = 0.35;
             } else {
                 slowFactor = 1;
             }
 
-            if (gamepad2.a) {
-                chime.start();
-            } else if (gamepad2.b) {
-                error.start();
-            }
 
-//haha
+            //if (gamepad2.a) {/
+            //    chime.start();
+            //} else if (gamepad2.b) {
+            //    error.start();
+            //}
 
+            // movement controls
             if (gamepad1.dpad_right) {
-                if (firstStrafe)
-                    firstStrafeHeading = angles.firstAngle; // record the original heading
-
-                firstStrafe = false;
-                strafeRightFor(0.8, angles.firstAngle);
+//                if (firstStrafe)
+//                    firstStrafeHeading = angles.firstAngle; // record the original heading
+//
+//                firstStrafe = false;
+                strafeRightFor(0.5, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
-                if (firstStrafe)
-                    firstStrafeHeading = angles.firstAngle;
-
-                firstStrafe = false;
-                strafeLeftFor(0.8, angles.firstAngle);
+//                if (firstStrafe)
+//                    firstStrafeHeading = angles.firstAngle;
+//
+//                firstStrafe = false;
+                strafeLeftFor(0.5, angles.firstAngle);
 
             } else {
-                firstStrafe = true;
-                rightfrontMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-                rightbackMotor.setPower(-gamepad1.right_stick_y * slowFactor);
-
-                leftfrontMotor.setPower(-gamepad1.left_stick_y * slowFactor);
-                leftbackMotor.setPower(-gamepad1.left_stick_y * slowFactor);
+                // Allow gamepad 1 to supersede gamepad 2
+                if (Math.abs(gamepad1.right_stick_y)>.1 || Math.abs(gamepad1.left_stick_y) > .1 ){
+                    left_y = gamepad1.left_stick_y;
+                    right_y = gamepad1.right_stick_y;
+                }
+//                else if(Math.abs(gamepad2.right_stick_y) > .1 || Math.abs(gamepad2.left_stick_y) > .1){ // get rid of this for now
+//                    left_y = gamepad2.left_stick_y;
+//                    right_y = gamepad2.right_stick_y;
+//                }
+                else {
+                    left_y = 0;
+                    right_y = 0;
+                }
+                rightfrontMotor.setPower(-right_y * slowFactor);
+                rightbackMotor.setPower(-right_y * slowFactor);
+                leftfrontMotor.setPower(-left_y * slowFactor);
+                leftbackMotor.setPower(-left_y * slowFactor);
             }
+
 
             // open: left = 1
             // open: right = 0
 
 
 
-            if (gamepad2.dpad_up) {
-                lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                //if (lifterPos > 100)r
-                lifter.setPower(1);
-            } else if (gamepad2.dpad_down) {
-                //if (lifterPos < LIFTER_MAX)
-                lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-                lifter.setPower(-0.5);
-
-                telemetry.addData("Position: ", lifter.getCurrentPosition());
-                telemetry.update();
+            if (gamepad2.dpad_down) {
+                lifter.setPower(0.8);
+            } else if (gamepad2.dpad_up) {
+                lifter.setPower(-1);
             } else {
                 lifter.setPower(0);
             }
 
-
-
-
-            //telemetry.addData("Servo Max: ", leftClamp.MAX_POSITION);
-            //telemetry.addData("Servo Min: ", leftClamp.MIN_POSITION);
-
-            //telemetry.addData("Right Position: ", rightClamp.getPower());
-
-
-
-            lifterPos = lifter.getCurrentPosition();
-
-            if (gamepad2.b) {
-                resetLifterMotor();
-                lifter.setTargetPosition(5000);
-                lifter.setPower(1);
-            }
-
-            if (gamepad2.x) {
-                resetLifterMotor();
-                lifter.setTargetPosition(10000);
-                lifter.setPower(1);
-            }
-
-            if(gamepad2.y){
-                resetLifterMotor();
-
-                lifter.setTargetPosition(20000);
-                lifter.setPower(1);
-
-                if (attop) {
-                    spin.setPosition(1);
-                    attop = false;
-                } else {
-                    spin.setPosition(-1);
-                    attop = true;
+            // spin it
+            if(gamepad2.y) {
+                if(!spinDebouncer) {
+                    if (attop) {
+                        spin.setPosition(1);
+                        attop = false;
+                    } else {
+                        spin.setPosition(0);
+                        attop = true;
+                    }
+                    spinDebouncer = true;
                 }
             }
+            else
+                spinDebouncer = false;
 
-            if(gamepad2.right_bumper) {
-                botr.setPower(1);
-                botl.setPower(-1);
-                topr.setPower(-1);
-                topl.setPower(1);
-            } else if (gamepad2.left_bumper) {
-                botr.setPower(-1);
-                botl.setPower(1);
-                topr.setPower(1);
-                topl.setPower(-1);
+            if (gamepad1.right_trigger > 0) {
+                    botr.setPower(-1);
+                    botl.setPower(1);
+                    topr.setPower(1);
+                    topl.setPower(-1);
+            }
+
+
+            // Gripper control
+            if(gamepad2.right_bumper || gamepad2.left_bumper || gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0 || gamepad1.right_trigger > 0) {
+                if (gamepad2.a) { // Rotate block.
+                    if (attop && gamepad2.right_bumper || !attop && gamepad2.left_trigger > 0) {
+                        topr.setPower(-1);
+                        topl.setPower(-1);
+                    } else if (attop && gamepad2.left_bumper || !attop && gamepad2.right_trigger > 0) {
+                        topr.setPower(1);
+                        topl.setPower(1);
+                    }
+                    if (attop && gamepad2.right_trigger > 0 || !attop && gamepad2.left_bumper) {
+                        botr.setPower(1);
+                        botl.setPower(1);
+                    } else if (attop && gamepad2.left_trigger > 0 || !attop && gamepad2.right_bumper) {
+                        botr.setPower(-1);
+                        botl.setPower(-1);
+                    }
+                } else { // Normal intake / outtake
+                    if (!attop && gamepad2.right_bumper || attop && gamepad2.right_trigger > 0) {
+                        botr.setPower(1);
+                        botl.setPower(-1);
+                    } else if (!attop && gamepad2.left_bumper || attop && gamepad2.left_trigger > 0) {
+                        botr.setPower(-1);
+                        botl.setPower(1);
+                    }
+                    if (!attop && gamepad2.right_trigger > 0 || attop && gamepad2.right_bumper) {
+                        topr.setPower(-1);
+                        topl.setPower(1);
+                    } else if (!attop && gamepad2.left_trigger > 0 || attop && gamepad2.left_bumper) {
+                        topr.setPower(1);
+                        topl.setPower(-1);
+                    }
+                }
             }
             else {
-                botr.setPower(0);
-                botl.setPower(0);
                 topr.setPower(0);
                 topl.setPower(0);
+                botr.setPower(0);
+                botl.setPower(0);
             }
 
+            telemetry.addData("attop: ", attop);
+            telemetry.update();
 
         }
     }
