@@ -150,7 +150,10 @@ public class RedTeamAutonomous extends LinearOpMode {
 
     private MediaPlayer music;
 
-
+    private Servo rightTop;
+    private Servo leftTop;
+    private Servo rightBottom;
+    private Servo leftBottom;
 
     @Override
     public void runOpMode() {
@@ -170,6 +173,11 @@ public class RedTeamAutonomous extends LinearOpMode {
         botr = hardwareMap.crservo.get("botr");
         botl = hardwareMap.crservo.get("botl");
         spin = hardwareMap.servo.get("spin");
+
+        leftBottom = hardwareMap.servo.get("leftbottom");
+        rightBottom = hardwareMap.servo.get("rightbottom");
+        rightTop = hardwareMap.servo.get("righttop");
+        leftTop= hardwareMap.servo.get("lefttop");
 
 
         jewelFlick = hardwareMap.servo.get("flick");
@@ -301,6 +309,18 @@ public class RedTeamAutonomous extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
 
+
+        // collect
+        botr.setPower(1);
+        botl.setPower(-1);
+        topr.setPower(-1);
+        topl.setPower(1);
+
+        // open up clamps
+        leftBottom.setPosition(0.55);
+        leftTop.setPosition(0.31);
+        rightTop.setPosition(0.59);
+        rightBottom.setPosition(0.35);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

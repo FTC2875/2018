@@ -43,6 +43,7 @@ public class ChassisTeleop extends LinearOpMode {
     private DcMotor leftfrontMotor;
     private DcMotor rightbackMotor;
     private DcMotor leftbackMotor;
+    private DcMotor relicExtender;
 
     private CRServo topr;
     private CRServo topl;
@@ -53,6 +54,8 @@ public class ChassisTeleop extends LinearOpMode {
     private Servo spin;
     private Servo leftTop;
     private Servo rightTop;
+    private Servo relicGrabber;
+    private Servo relicLifter;
 
     private double leftPos = 0;
     private double rightPos = 0;
@@ -72,7 +75,11 @@ public class ChassisTeleop extends LinearOpMode {
     private final float strafeKP = 0.05f;
     private double slowFactor = 1;
 
-    private boolean relicMode = false;
+    private boolean relicGrabberAtTop = false;
+    private boolean relicLifterAtTop = false;
+    private boolean clamp = false;
+
+    private double lastClampTime, lastRelicGrabberTime, lastRelicLifterTime = time;
 
     @Override
 
@@ -99,20 +106,25 @@ public class ChassisTeleop extends LinearOpMode {
         botl = hardwareMap.crservo.get("botl");
         spin = hardwareMap.servo.get("spin");
 
+//        relicExtender = hardwareMap.dcMotor.get("extender");
+//        relicGrabber = hardwareMap.servo.get("grabber");
+//        relicLifter = hardwareMap.servo.get("relicgrabber");
+
         lifter = hardwareMap.dcMotor.get("lifter");
+
         // lifterButton = hardwareMap.digitalChannel.get("button");
 
-        leftbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightfrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightbackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftbackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftfrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightfrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightbackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
-        leftfrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        rightfrontMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        leftbackMotor.setDirection(DcMotor.Direction.FORWARD);
-        rightbackMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftfrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        rightfrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        leftbackMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightbackMotor.setDirection(DcMotor.Direction.FORWARD);
 
         //smash = MediaPlayer.create(hardwareMap.appContext, R.raw.smash);
         //running = MediaPlayer.create(hardwareMap.appContext, R.raw.running);
@@ -129,7 +141,7 @@ public class ChassisTeleop extends LinearOpMode {
         MediaPlayer error = MediaPlayer.create(hardwareMap.appContext, R.raw.errormessage);
         MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
         MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.warningmessage);
-        MediaPlayer smash = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
+//        MediaPlayer smash = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
 
         // rev imu stuff
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -167,7 +179,7 @@ public class ChassisTeleop extends LinearOpMode {
         topl.setPower(1);
         sleep(300);
 
-        smash.start();
+//        smash.start();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // update the current angle
@@ -176,21 +188,21 @@ public class ChassisTeleop extends LinearOpMode {
 
             // controls for controlling top and bottom arms2
             if (gamepad2.dpad_right || gamepad2.dpad_left || gamepad2.left_stick_x < -.1 || gamepad2.left_stick_x > .1 || gamepad2.right_stick_x < -.1 || gamepad2.right_stick_x > .1) {
-                if (gamepad2.dpad_right) { // bring top out
+                if (gamepad2.left_stick_x > 0.1) { // bring top out
                     leftTop.setPosition(0.0);
                     rightTop.setPosition(1.0);
 
-                } else if (gamepad2.dpad_left) {  // bring top in
+                } else if (gamepad2.left_stick_x < -0.1) {  // bring top in
                     leftTop.setPosition(0.55);
                     rightTop.setPosition(0.35);
                 }
 
-                if (gamepad2.left_stick_x < -.1 || gamepad2.right_stick_x < -.1) { // bring bottom in
+                if (gamepad2.right_stick_x < -.1) { // bring bottom in
                     leftBottom.setPosition(0.35);
                     rightBottom.setPosition(0.55);
 
                     telemetry.addData("Left Stick: ", gamepad2.left_stick_x);
-                } else if (gamepad2.right_stick_x > 0.1 || gamepad2.left_stick_x > 0.1) { // bring bottom out
+                } else if (gamepad2.right_stick_x > 0.1) { // bring bottom out
                     leftBottom.setPosition(1.0);
                     rightBottom.setPosition(0.0);
                 }
@@ -198,18 +210,19 @@ public class ChassisTeleop extends LinearOpMode {
 
             } else {    // controls for both of the arms
 
-                if (gamepad2.b) { // Open grippers
+                if (gamepad2.b || gamepad1.right_trigger > 0.1) { // Open grippers
                     leftTop.setPosition(0.0);
                     leftBottom.setPosition(1.0);
 
                     rightTop.setPosition(1.0); // fix the top
                     rightBottom.setPosition(0.0);
-                } else if (gamepad1.right_bumper) {
+                } else if (clamp) { // clamp
                     leftBottom.setPosition(0.35);
                     leftTop.setPosition(0.55);
 
                     rightBottom.setPosition(0.55);
                     rightTop.setPosition(0.35);
+
                 } else {
                     leftBottom.setPosition(0.55);
                     leftTop.setPosition(0.31);
@@ -219,6 +232,16 @@ public class ChassisTeleop extends LinearOpMode {
                 }
             }
 
+            if (gamepad1.right_bumper) {
+                if (Math.abs(time - lastClampTime) > 0.3) {
+                    if (!clamp) {
+                        clamp = true;
+                    } else {
+                        clamp = false;
+                    }
+                    lastClampTime = time;
+                }
+            }
 
             if (gamepad1.left_bumper) { // Slow mode driving
                 slowFactor = 0.35;
@@ -227,25 +250,19 @@ public class ChassisTeleop extends LinearOpMode {
             }
 
 
-            //if (gamepad2.a) {/
-            //    chime.start();
-            //} else if (gamepad2.b) {
-            //    error.start();
-            //}
-
             // movement controls
             if (gamepad1.dpad_right) {
 //                if (firstStrafe)
 //                    firstStrafeHeading = angles.firstAngle; // record the original heading
 //
 //                firstStrafe = false;
-                strafeRightFor(0.5, angles.firstAngle);
+                strafeRightFor(0.75, angles.firstAngle);
             } else if (gamepad1.dpad_left) {
 //                if (firstStrafe)
 //                    firstStrafeHeading = angles.firstAngle;
 //
 //                firstStrafe = false;
-                strafeLeftFor(0.5, angles.firstAngle);
+                strafeLeftFor(0.75, angles.firstAngle);
 
             } else {
                 // Allow gamepad 1 to supersede gamepad 2
@@ -265,6 +282,7 @@ public class ChassisTeleop extends LinearOpMode {
                 rightbackMotor.setPower(-right_y * slowFactor);
                 leftfrontMotor.setPower(-left_y * slowFactor);
                 leftbackMotor.setPower(-left_y * slowFactor);
+
             }
 
 
@@ -272,7 +290,7 @@ public class ChassisTeleop extends LinearOpMode {
             // open: right = 0
 
 
-
+//            lifter code
             if (gamepad2.dpad_down) {
                 lifter.setPower(0.8);
             } else if (gamepad2.dpad_up) {
@@ -297,12 +315,15 @@ public class ChassisTeleop extends LinearOpMode {
             else
                 spinDebouncer = false;
 
-            if (gamepad1.right_trigger > 0) {
-                    botr.setPower(-1);
-                    botl.setPower(1);
-                    topr.setPower(1);
-                    topl.setPower(-1);
-            }
+            // spit out
+//            if (gamepad1.right_trigger > 0) {
+//                    botr.setPower(-1);
+//                    botl.setPower(1);
+//                    topr.setPower(1);
+//                    topl.setPower(-1);
+//            }
+
+
 
 
             // Gripper control
@@ -345,6 +366,46 @@ public class ChassisTeleop extends LinearOpMode {
                 botr.setPower(0);
                 botl.setPower(0);
             }
+
+//            // relic extender code
+//            if (gamepad1.x) {
+//                relicExtender.setPower(1);
+//            } else if (gamepad1.b) {
+//                relicExtender.setPower(-1);
+//            } else {
+//                relicExtender.setPower(0);
+//            }
+
+//            // relic lifter code
+//            if (gamepad1.y) {
+//                if (Math.abs(time - lastRelicLifterTime) > 0.3) {
+//                    if (!relicLifterAtTop) {
+//                        relicLifterAtTop = true;
+//                        relicLifter.setPosition(0);
+//                    } else {
+//                        relicLifterAtTop = false;
+//                        relicLifter.setPosition(1);
+//                    }
+//                    lastRelicLifterTime = time;
+//                }
+//            }
+//
+//            // relic grabber code
+//            if (gamepad1.a) {
+//                if (Math.abs(time - lastRelicGrabberTime) > 0.3) {
+//                    if (!relicGrabberAtTop) {
+//                        relicGrabberAtTop = true;
+//                        relicGrabber.setPosition(1);
+//                    } else {
+//                        relicGrabberAtTop = false;
+//                        relicGrabber.setPosition(0.5);
+//                    }
+//                }
+//            }
+
+            telemetry.addData("Clamp", clamp);
+            telemetry.addData("Front Left", leftfrontMotor.getPowerFloat());
+            telemetry.addData("Back Left", leftbackMotor.getPowerFloat());
 
             telemetry.addData("attop: ", attop);
             telemetry.update();

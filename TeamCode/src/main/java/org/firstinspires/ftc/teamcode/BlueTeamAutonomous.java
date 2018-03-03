@@ -146,6 +146,10 @@ public class BlueTeamAutonomous extends LinearOpMode {
 
     private final double jewelStickDown = 1;
     private final double jewelStickUp = 0.3;
+    private Servo rightBottom;
+    private Servo leftBottom;
+    private Servo rightTop;
+    private Servo leftTop;
 
     @Override
     public void runOpMode() {
@@ -167,6 +171,10 @@ public class BlueTeamAutonomous extends LinearOpMode {
         botr = hardwareMap.crservo.get("botr");
         botl = hardwareMap.crservo.get("botl");
         spin = hardwareMap.servo.get("spin");
+        leftBottom = hardwareMap.servo.get("leftbottom");
+        rightBottom = hardwareMap.servo.get("rightbottom");
+        rightTop = hardwareMap.servo.get("righttop");
+        leftTop= hardwareMap.servo.get("lefttop");
 
         lifter = hardwareMap.dcMotor.get("lifter");
 
@@ -280,6 +288,19 @@ public class BlueTeamAutonomous extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
+
+
+        // collect
+        botr.setPower(1);
+        botl.setPower(-1);
+        topr.setPower(-1);
+        topl.setPower(1);
+
+        // open up clamps
+        leftBottom.setPosition(0.55);
+        leftTop.setPosition(0.31);
+        rightTop.setPosition(0.59);
+        rightBottom.setPosition(0.35);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

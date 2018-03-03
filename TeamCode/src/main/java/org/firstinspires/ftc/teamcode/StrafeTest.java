@@ -80,10 +80,10 @@ public class StrafeTest extends LinearOpMode {
 
 
 
-        rightClamp = hardwareMap.servo.get("rightclamp");
-        leftClamp = hardwareMap.servo.get("leftclamp");
+//        rightClamp = hardwareMap.servo.get("rightclamp");
+//        leftClamp = hardwareMap.servo.get("leftclamp");
 
-        extender = hardwareMap.crservo.get("extender");
+//        extender = hardwareMap.crservo.get("extender");
 
         lifter = hardwareMap.dcMotor.get("lifter");
         // lifterButton = hardwareMap.digitalChannel.get("button");
