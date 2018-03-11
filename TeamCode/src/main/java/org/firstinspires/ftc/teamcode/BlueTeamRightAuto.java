@@ -182,10 +182,10 @@ public class BlueTeamRightAuto extends LinearOpMode {
         // "Reverse" the motor that runs backwards when connected directly to the battery
         // leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        leftFrontMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-        leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
-        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
 
         lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -289,18 +289,8 @@ public class BlueTeamRightAuto extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(IMUParameters);
 
-
-        // collect
-        botr.setPower(1);
-        botl.setPower(-1);
-        topr.setPower(-1);
-        topl.setPower(1);
-
-        // open up clamps
-        leftBottom.setPosition(0.55);
-        leftTop.setPosition(0.31);
-        rightTop.setPosition(0.59);
-        rightBottom.setPosition(0.35);
+        MediaPlayer africa = MediaPlayer.create(hardwareMap.appContext, R.raw.africa);
+        africa.start();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -310,6 +300,25 @@ public class BlueTeamRightAuto extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
+            // collect
+            botr.setPower(1);
+            botl.setPower(-1);
+            topr.setPower(-1);
+            topl.setPower(1);
+
+            // open up clamps
+            leftBottom.setPosition(0.55);
+            leftTop.setPosition(0.31);
+            rightTop.setPosition(0.59);
+            rightBottom.setPosition(0.35);
+
+            botr.setPower(0);
+            botl.setPower(0);
+            topr.setPower(0);
+            topl.setPower(0);
+
+            sleep(300);
             try {
                 moveToBall();
             } catch (InterruptedException e) {

@@ -55,7 +55,7 @@ public class ChassisTeleop extends LinearOpMode {
     private Servo leftTop;
     private Servo rightTop;
     private Servo relicGrabber;
-    private Servo relicLifter;
+    private CRServo relicLifter;
 
     private double leftPos = 0;
     private double rightPos = 0;
@@ -71,7 +71,7 @@ public class ChassisTeleop extends LinearOpMode {
 
     private float firstStrafeHeading;
 
-    private final double flickUpPosition = 0.2;
+    private final double flickUpPosition = 0.4;
     private final float strafeKP = 0.05f;
     private double slowFactor = 1;
 
@@ -106,9 +106,9 @@ public class ChassisTeleop extends LinearOpMode {
         botl = hardwareMap.crservo.get("botl");
         spin = hardwareMap.servo.get("spin");
 
-//        relicExtender = hardwareMap.dcMotor.get("extender");
-//        relicGrabber = hardwareMap.servo.get("grabber");
-//        relicLifter = hardwareMap.servo.get("relicgrabber");
+        relicExtender = hardwareMap.dcMotor.get("extender");
+        relicGrabber = hardwareMap.servo.get("grabber");
+        relicLifter = hardwareMap.crservo.get("reliclifter");
 
         lifter = hardwareMap.dcMotor.get("lifter");
 
@@ -142,6 +142,7 @@ public class ChassisTeleop extends LinearOpMode {
         MediaPlayer chime = MediaPlayer.create(hardwareMap.appContext, R.raw.chimeconnect);
         MediaPlayer player = MediaPlayer.create(hardwareMap.appContext, R.raw.warningmessage);
 //        MediaPlayer smash = MediaPlayer.create(hardwareMap.appContext, R.raw.allstar);
+        MediaPlayer africa = MediaPlayer.create(hardwareMap.appContext, R.raw.africa);
 
         // rev imu stuff
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -178,6 +179,8 @@ public class ChassisTeleop extends LinearOpMode {
         topr.setPower(-1);
         topl.setPower(1);
         sleep(300);
+
+        africa.start();
 
 //        smash.start();
         // run until the end of the match (driver presses STOP)
@@ -368,40 +371,49 @@ public class ChassisTeleop extends LinearOpMode {
             }
 
 //            // relic extender code
-//            if (gamepad1.x) {
-//                relicExtender.setPower(1);
-//            } else if (gamepad1.b) {
-//                relicExtender.setPower(-1);
-//            } else {
-//                relicExtender.setPower(0);
-//            }
+            if (gamepad1.x) {
+                relicExtender.setPower(-0.8 * slowFactor);
+            } else if (gamepad1.b) {
+                relicExtender.setPower(0.8 * slowFactor);
+            } else {
+                relicExtender.setPower(0);
+            }
 
-//            // relic lifter code
-//            if (gamepad1.y) {
-//                if (Math.abs(time - lastRelicLifterTime) > 0.3) {
+            // relic lifter code
+            if (gamepad1.y) {
+//                if (Math.abs(time - lastRelicLifterTime) > 0.8) {
 //                    if (!relicLifterAtTop) {
 //                        relicLifterAtTop = true;
-//                        relicLifter.setPosition(0);
+//                        relicLifter.setPosition(0.5);
+//                        relicLifter.getController().
 //                    } else {
 //                        relicLifterAtTop = false;
 //                        relicLifter.setPosition(1);
 //                    }
 //                    lastRelicLifterTime = time;
 //                }
-//            }
-//
-//            // relic grabber code
-//            if (gamepad1.a) {
-//                if (Math.abs(time - lastRelicGrabberTime) > 0.3) {
-//                    if (!relicGrabberAtTop) {
-//                        relicGrabberAtTop = true;
-//                        relicGrabber.setPosition(1);
-//                    } else {
-//                        relicGrabberAtTop = false;
-//                        relicGrabber.setPosition(0.5);
-//                    }
-//                }
-//            }
+                relicLifter.setPower(1);
+            } else if (gamepad1.left_trigger > 0.2) {
+                telemetry.addData("gamepad trigger", gamepad1.left_trigger);
+                telemetry.update();
+                relicLifter.setPower(-1);
+            } else {
+                relicLifter.setPower(0);
+            }
+
+            // relic grabber code
+            if (gamepad1.a) {
+                if (Math.abs(time - lastRelicGrabberTime) > 0.8) {
+                    if (!relicGrabberAtTop) {
+                        relicGrabberAtTop = true;
+                        relicGrabber.setPosition(1);
+                    } else {
+                        relicGrabberAtTop = false;
+                        relicGrabber.setPosition(0.65);
+                    }
+                    lastRelicGrabberTime = time;
+                }
+            }
 
             telemetry.addData("Clamp", clamp);
             telemetry.addData("Front Left", leftfrontMotor.getPowerFloat());
